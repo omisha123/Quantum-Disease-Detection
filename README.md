@@ -34,7 +34,7 @@ python3 image_model.py             # image screening: classical CNN vs quantum h
 python3 evaluate.py                # full comparison table, saved to results_comparison.csv
 python3 explainability.py          # SHAP demo on a few patients
 python3 export_results.py          # pre-compute results.json for the static dashboard
-streamlit run app.py               # OR: python3 -m http.server 8000, then open dashboard.html
+python3 -m http.server 8000        # then open http://localhost:8000/dashboard.html
 ```
 
 ## Two disease-detection framings in this platform
