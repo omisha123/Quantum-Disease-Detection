@@ -1,0 +1,1087 @@
+{
+  "datasets": {
+    "breast_cancer": {
+      "display_name": "Breast Cancer Wisconsin (Diagnostic)",
+      "framing": "Diagnostic confirmation (post-biopsy) - benchmark dataset for direct comparison with published QML research",
+      "is_real_data": true,
+      "evaluation": {
+        "classical": {
+          "model": "Classical Ensemble (SVM+RF)",
+          "accuracy": 0.9649122807017544,
+          "precision": 0.9722222222222222,
+          "recall": 0.9722222222222222,
+          "f1": 0.9722222222222222,
+          "auc_roc": 0.996362433862434,
+          "training_time_sec": 0.29
+        },
+        "quantum": {
+          "model": "Quantum Hybrid Ensemble (QSVM+VQC)",
+          "accuracy": 0.7982456140350878,
+          "precision": 0.7578947368421053,
+          "recall": 1.0,
+          "f1": 0.8622754491017964,
+          "auc_roc": 0.933531746031746,
+          "training_time_sec": 46.71
+        }
+      },
+      "dataset_info": {
+        "name": "Breast Cancer Wisconsin (Diagnostic)",
+        "n_train": 455,
+        "n_test": 114,
+        "n_features_classical": 30,
+        "n_features_quantum": 4,
+        "pca_explained_variance": 0.796
+      },
+      "patients": [
+        {
+          "patient_id": 0,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 98.3,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "worst area",
+                "impact": -0.1001
+              },
+              {
+                "feature": "mean fractal dimension",
+                "impact": -0.0855
+              },
+              {
+                "feature": "concavity error",
+                "impact": -0.0806
+              },
+              {
+                "feature": "worst concave points",
+                "impact": -0.0733
+              },
+              {
+                "feature": "worst radius",
+                "impact": -0.0541
+              },
+              {
+                "feature": "mean perimeter",
+                "impact": -0.0479
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 74.5,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC1",
+                "impact": -0.3956
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.106
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0041
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.0002
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 1,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 1.6,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "worst radius",
+                "impact": 0.1383
+              },
+              {
+                "feature": "worst compactness",
+                "impact": 0.0739
+              },
+              {
+                "feature": "mean fractal dimension",
+                "impact": 0.0726
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": 0.0235
+              },
+              {
+                "feature": "radius error",
+                "impact": 0.0157
+              },
+              {
+                "feature": "mean concave points",
+                "impact": 0.0136
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 10.2,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "PC1",
+                "impact": 0.1279
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.0177
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.0017
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.001
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 2,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 97.0,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "worst concave points",
+                "impact": -0.1463
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": -0.0842
+              },
+              {
+                "feature": "worst fractal dimension",
+                "impact": -0.0745
+              },
+              {
+                "feature": "worst smoothness",
+                "impact": -0.061
+              },
+              {
+                "feature": "mean concavity",
+                "impact": -0.0502
+              },
+              {
+                "feature": "mean smoothness",
+                "impact": -0.0498
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 61.8,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC1",
+                "impact": -0.2414
+              },
+              {
+                "feature": "PC4",
+                "impact": -0.079
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.0497
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.0012
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 3,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 71.8,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "mean radius",
+                "impact": -0.0701
+              },
+              {
+                "feature": "worst area",
+                "impact": -0.0653
+              },
+              {
+                "feature": "worst radius",
+                "impact": -0.0596
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": -0.0547
+              },
+              {
+                "feature": "mean area",
+                "impact": -0.0192
+              },
+              {
+                "feature": "worst smoothness",
+                "impact": -0.0185
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 18.1,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "PC1",
+                "impact": 0.0856
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.063
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.0385
+              },
+              {
+                "feature": "PC4",
+                "impact": -0.0002
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 4,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 98.2,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "worst area",
+                "impact": -0.1621
+              },
+              {
+                "feature": "mean concave points",
+                "impact": -0.0913
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": -0.0736
+              },
+              {
+                "feature": "area error",
+                "impact": -0.0726
+              },
+              {
+                "feature": "texture error",
+                "impact": -0.0512
+              },
+              {
+                "feature": "worst concave points",
+                "impact": -0.0384
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 41.2,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "PC1",
+                "impact": -0.3048
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.1112
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0526
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.0294
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "diabetes": {
+      "display_name": "Pima Diabetes (Early Risk Screening)",
+      "framing": "Genuinely early/pre-diagnosis - glucose, BMI, age, family history risk factors",
+      "is_real_data": true,
+      "evaluation": {
+        "classical": {
+          "model": "Classical Ensemble (SVM+RF)",
+          "accuracy": 0.7402597402597403,
+          "precision": 0.6458333333333334,
+          "recall": 0.5740740740740741,
+          "f1": 0.6078431372549019,
+          "auc_roc": 0.8159259259259259,
+          "training_time_sec": 0.22
+        },
+        "quantum": {
+          "model": "Quantum Hybrid Ensemble (QSVM+VQC)",
+          "accuracy": 0.6428571428571429,
+          "precision": 0.4915254237288136,
+          "recall": 0.5370370370370371,
+          "f1": 0.5132743362831859,
+          "auc_roc": 0.6862962962962963,
+          "training_time_sec": 37.31
+        }
+      },
+      "dataset_info": {
+        "name": "Pima Diabetes (Early Risk Screening)",
+        "n_train": 614,
+        "n_test": 154,
+        "n_features_classical": 8,
+        "n_features_quantum": 4,
+        "pca_explained_variance": 0.729
+      },
+      "patients": [
+        {
+          "patient_id": 0,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 14.1,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "glucose",
+                "impact": 0.4581
+              },
+              {
+                "feature": "bmi",
+                "impact": -0.0964
+              },
+              {
+                "feature": "pregnancies",
+                "impact": 0.091
+              },
+              {
+                "feature": "age",
+                "impact": 0.0762
+              },
+              {
+                "feature": "diabetes_pedigree",
+                "impact": -0.0475
+              },
+              {
+                "feature": "insulin",
+                "impact": 0.0313
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 53.2,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC3",
+                "impact": -0.0566
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0309
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.0225
+              },
+              {
+                "feature": "PC1",
+                "impact": 0.0214
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 1,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 92.7,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "glucose",
+                "impact": -0.1968
+              },
+              {
+                "feature": "insulin",
+                "impact": -0.1565
+              },
+              {
+                "feature": "age",
+                "impact": 0.0501
+              },
+              {
+                "feature": "pregnancies",
+                "impact": 0.0494
+              },
+              {
+                "feature": "diabetes_pedigree",
+                "impact": -0.0307
+              },
+              {
+                "feature": "blood_pressure",
+                "impact": 0.0234
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 49.7,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": 0.0708
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.062
+              },
+              {
+                "feature": "PC1",
+                "impact": 0.0333
+              },
+              {
+                "feature": "PC4",
+                "impact": -0.033
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 2,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 97.7,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "glucose",
+                "impact": -0.1561
+              },
+              {
+                "feature": "age",
+                "impact": -0.1293
+              },
+              {
+                "feature": "skin_thickness",
+                "impact": -0.0167
+              },
+              {
+                "feature": "pregnancies",
+                "impact": -0.0166
+              },
+              {
+                "feature": "diabetes_pedigree",
+                "impact": -0.0144
+              },
+              {
+                "feature": "blood_pressure",
+                "impact": 0.0071
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 55.5,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": -0.0574
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0296
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.0238
+              },
+              {
+                "feature": "PC1",
+                "impact": -0.0177
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 3,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 86.2,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "bmi",
+                "impact": -0.2249
+              },
+              {
+                "feature": "pregnancies",
+                "impact": 0.0762
+              },
+              {
+                "feature": "glucose",
+                "impact": -0.0757
+              },
+              {
+                "feature": "diabetes_pedigree",
+                "impact": 0.0381
+              },
+              {
+                "feature": "blood_pressure",
+                "impact": -0.0201
+              },
+              {
+                "feature": "skin_thickness",
+                "impact": -0.0164
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 65.8,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC4",
+                "impact": -0.1132
+              },
+              {
+                "feature": "PC1",
+                "impact": -0.0869
+              },
+              {
+                "feature": "PC2",
+                "impact": 0.0674
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.0403
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 4,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 98.1,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "glucose",
+                "impact": -0.2221
+              },
+              {
+                "feature": "age",
+                "impact": -0.05
+              },
+              {
+                "feature": "diabetes_pedigree",
+                "impact": -0.039
+              },
+              {
+                "feature": "blood_pressure",
+                "impact": 0.0109
+              },
+              {
+                "feature": "pregnancies",
+                "impact": -0.0107
+              },
+              {
+                "feature": "insulin",
+                "impact": -0.0079
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 80.1,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC1",
+                "impact": -0.184
+              },
+              {
+                "feature": "PC2",
+                "impact": -0.0613
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.054
+              },
+              {
+                "feature": "PC4",
+                "impact": -0.0164
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "genomics": {
+      "display_name": "Leukemia Gene Expression (Genomics)",
+      "framing": "High-dimensional genomics data - illustrates classical ML's curse-of-dimensionality challenge",
+      "is_real_data": false,
+      "evaluation": {
+        "classical": {
+          "model": "Classical Ensemble (SVM+RF)",
+          "accuracy": 0.6666666666666666,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "auc_roc": 0.6599999999999999,
+          "training_time_sec": 0.23
+        },
+        "quantum": {
+          "model": "Quantum Hybrid Ensemble (QSVM+VQC)",
+          "accuracy": 0.6666666666666666,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "auc_roc": 0.8600000000000001,
+          "training_time_sec": 19.67
+        }
+      },
+      "dataset_info": {
+        "name": "Leukemia Gene Expression (Genomics)",
+        "n_train": 57,
+        "n_test": 15,
+        "n_features_classical": 2000,
+        "n_features_quantum": 4,
+        "pca_explained_variance": 0.097
+      },
+      "patients": [
+        {
+          "patient_id": 0,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 70.8,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "gene_1840",
+                "impact": 0.0162
+              },
+              {
+                "feature": "gene_1790",
+                "impact": 0.0113
+              },
+              {
+                "feature": "gene_1351",
+                "impact": 0.0073
+              },
+              {
+                "feature": "gene_1366",
+                "impact": 0.0066
+              },
+              {
+                "feature": "gene_383",
+                "impact": 0.0021
+              },
+              {
+                "feature": "gene_898",
+                "impact": -0.0019
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 57.3,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": 0.028
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0187
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.0177
+              },
+              {
+                "feature": "PC1",
+                "impact": 0.0127
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 1,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 72.5,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "gene_447",
+                "impact": 0.0097
+              },
+              {
+                "feature": "gene_1529",
+                "impact": 0.0065
+              },
+              {
+                "feature": "gene_962",
+                "impact": 0.006
+              },
+              {
+                "feature": "gene_207",
+                "impact": -0.0043
+              },
+              {
+                "feature": "gene_221",
+                "impact": 0.0028
+              },
+              {
+                "feature": "gene_1811",
+                "impact": 0.0021
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 59.1,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": 0.0321
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.0107
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0086
+              },
+              {
+                "feature": "PC1",
+                "impact": 0.008
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 2,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 77.9,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "gene_728",
+                "impact": -0.0096
+              },
+              {
+                "feature": "gene_1966",
+                "impact": -0.0085
+              },
+              {
+                "feature": "gene_1110",
+                "impact": -0.0046
+              },
+              {
+                "feature": "gene_1663",
+                "impact": -0.0042
+              },
+              {
+                "feature": "gene_213",
+                "impact": -0.0033
+              },
+              {
+                "feature": "gene_1097",
+                "impact": -0.0021
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 57.5,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": 0.0356
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0171
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.014
+              },
+              {
+                "feature": "PC1",
+                "impact": 0.0086
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 3,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 66.8,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "gene_1455",
+                "impact": 0.0757
+              },
+              {
+                "feature": "gene_623",
+                "impact": 0.049
+              },
+              {
+                "feature": "gene_229",
+                "impact": 0.0419
+              },
+              {
+                "feature": "gene_1007",
+                "impact": -0.0404
+              },
+              {
+                "feature": "gene_1933",
+                "impact": 0.0321
+              },
+              {
+                "feature": "gene_303",
+                "impact": -0.0307
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 60.3,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": 0.0379
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0118
+              },
+              {
+                "feature": "PC1",
+                "impact": -0.0028
+              },
+              {
+                "feature": "PC3",
+                "impact": -0.0001
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 4,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 72.4,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "gene_616",
+                "impact": 0.0079
+              },
+              {
+                "feature": "gene_91",
+                "impact": 0.0049
+              },
+              {
+                "feature": "gene_715",
+                "impact": 0.0024
+              },
+              {
+                "feature": "gene_580",
+                "impact": 0.0017
+              },
+              {
+                "feature": "gene_152",
+                "impact": 0.0017
+              },
+              {
+                "feature": "gene_1595",
+                "impact": 0.0016
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 54.1,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "PC2",
+                "impact": 0.0312
+              },
+              {
+                "feature": "PC3",
+                "impact": 0.0274
+              },
+              {
+                "feature": "PC4",
+                "impact": 0.0247
+              },
+              {
+                "feature": "PC1",
+                "impact": 0.02
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "imaging": {
+    "display_name": "Breast Ultrasound Screening (BreastMNIST)",
+    "framing": "Screening modality (pre-biopsy imaging) - earlier in the care pathway than the Wisconsin biopsy-derived tabular dataset.",
+    "is_real_data": false,
+    "engine": "fallback (PCA+RandomForest vs PCA+angle-embedding+LogisticRegression - install torch+pennylane and rerun for the real CNN/VQC models)",
+    "evaluation": {
+      "classical": {
+        "model": "Classical CNN",
+        "accuracy": 0.4,
+        "precision": 0.46875,
+        "recall": 0.6818181818181818,
+        "f1": 0.5555555555555556,
+        "auc_roc": 0.43308080808080807,
+        "training_time_sec": 0.28
+      },
+      "quantum": {
+        "model": "Quantum Hybrid CNN+VQC",
+        "accuracy": 0.55,
+        "precision": 0.55,
+        "recall": 1.0,
+        "f1": 0.7096774193548387,
+        "auc_roc": 0.5378787878787878,
+        "training_time_sec": 0.01
+      }
+    },
+    "dataset_info": {
+      "name": "BreastMNIST (28x28 grayscale ultrasound)",
+      "n_train": 160,
+      "n_test": 40,
+      "n_qubits": 4
+    },
+    "cases": [
+      {
+        "case_id": 0,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Benign",
+        "classical": {
+          "prediction": "Benign",
+          "risk_score_pct": 35.0
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 43.0
+        }
+      },
+      {
+        "case_id": 1,
+        "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAAAAADji6uXAAAF5klEQVR4nOXa+dNVAxwG8M9brySNbAkhyU62QkILQ29kp8U2KEtky75UY0QGLTOyK7ssEbLHDKZsUbTKUmGyZSlZEsUPz3mn/+A0c++dufPOve8959x5nvt8v8/3+Z6acXgfe6EzVuBgLMPhmFI8H8WtuBy7oina4in8i8swA4vQqPjfbDxYnLsr9kADJT8q/4K1g9FFcF+Gq9EcG2IJfsF96IOFxesWaIc/cCe+w03YFhfgOLyMfngMQzECdaoB0vI57IHPsQArRXPt0Bg9hKfdMR/3CJ/D0U24vkC46YcmeA79cWFxrt7C6S8YohogLZ/DWdgUP+Id0dhc0WOr4v1JwtPv2BGv4wapnyOwHK2F04eKz26CM3E73kVDtFcNkJbPYSsMwlg8ITx0wEgMxq/S707AtVhPaudG2AxbYx/hakv8Jr+DwcLrIZiDT4vPVz6k5XP4s9S6RqKVlsJJJ6wlfC0W/E/CMWiDbYpv+0pxfC+sEp4bollx7DpSQx/El6oB0vI5PAMDRYe3YGPsgtHCwUJcg1qMx12i11/xvPDdFA+Lp2kl/nQI9pXa20bqdH/VAGnpF6yZiqPEqzSXujlGvEjn4r0fcAb+lDmkBY4Vrf4lXuav4jznFccMxQHFRSbjLPyjGiAtn8ObZT6Yi6Ol7y3DxcLRJXhSfMtpwl8D8S6NRGs/Crd/FO8vxgDxMguwnWhxmmqAtHwOpwhv+4qOzsdSvIeZwsvz6ImOmCCzyBIcIfPHcOyHeZIRjBUN3iledgC6S5+sfEjL53Ch+Mce0ruaSQ29DYcKF1dhN2yPHcS7jMFbUl9/w7lSKz+QPKareKC95XcxSnxP5UNavqf5FkcK9n/jFNyI+2We64178bH4zw7S334QnV4pvmY5TpZc5iDxo5/hUvFCZ4u+Kx/S8jlsLXx0x/r4Sma5zuiLO1CDF8S3tBE+J+AnfCuaGy2czREPOloy02XieQ7AdNUA6ZrxNJMkM20ps0VfycmexieizVnFe3cV33IVdha++4gXPR4fFa/nih9aW+ptR+G/8iFdM/3wSrwpdW++eJD6XcM5MtcPxxbC5zCcKhp9XOaSOvGmLbGn9NiRovEPJRNopxogLb+WzpEe10R639OisRniZZrKvHCHeNPFkqu9LZqsk7rbS+b6eTjR6gxnnsz930tOXvmQls/hZOGmjXiU12Rv+IDk2d3Ek2wgedsGotNO4n2ekbniS9lZnF6c63ThvYtkOl1Eo5UPafkcThL/OUI8x9dW74haSA73s3iUY6QmrpRZpC/2lz3TXtL7lhbHzBauG8usf7lkdJUPafkcnimzwjrCY0fpcV9hK8lMDxMfep7kALfI3H+z+M32Mtu/janS9x4tPr9IZv7pxTkqH9LyOdxMuDpLMpWrpBfOxIEyT/wp2XdbTBTfs1T0OlX0NR47idc5V/xQvZetFV4PVQ2Qls/h77JzmCB5G8F7XamhNbhb/OjDor/6veAsyWrWFa2+KLPGKvE630teOl/q7HqqAdLyORwv+DYTDU0TPv6RXX57mREay7w+RHaEK2UnWCdeZZr0yCGSB1wkv4nLZKc/UDRZ+ZCWz2Ez2StMkfn+UuHlReFgumQA90qdfUVys37C+5GyF/xJauXM4tlTeup2kqn3t3rnUeqj8i9Y+7HMhCukD/6HZyXzXCHcDpYs7iXxONdLj3tLtNdE6uo9cq9ireSnu8jcv6R4XqEaIC0/p7kE34hGGktmvVvxXCX3o02U2aGteM9O+ELq6f3Cz2y8KnNhH+F1lOw5Okt+UJ/Tlfqo/AvWLBdPOlB64KminYbiX44Qjp4qvt0A8Tx1cj/cTeJ1Fkk+OllmyedkD7Kn5DQ14lsrH9LyORwn+4pXZR/fV+67eEf8aGtcJ/NFA6md9fvgcVJ/N8cjVtfh9SWTaySedEvZT9WqBkjL74cHSt3cQ3B+X/YRK2X30F101VsynG6y110g9wcvkfsU+8nO4qTi71ai5WGyzxiEN1QDpKVf8H9iYoNN29JiywAAAABJRU5ErkJggg==",
+        "actual_label": "Benign",
+        "classical": {
+          "prediction": "Malignant",
+          "risk_score_pct": 51.5
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 43.1
+        }
+      },
+      {
+        "case_id": 2,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Benign",
+        "classical": {
+          "prediction": "Benign",
+          "risk_score_pct": 37.5
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 43.6
+        }
+      },
+      {
+        "case_id": 3,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Benign",
+        "classical": {
+          "prediction": "Malignant",
+          "risk_score_pct": 50.5
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 43.6
+        }
+      },
+      {
+        "case_id": 4,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Malignant",
+        "classical": {
+          "prediction": "Benign",
+          "risk_score_pct": 44.5
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 42.5
+        }
+      },
+      {
+        "case_id": 5,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Malignant",
+        "classical": {
+          "prediction": "Benign",
+          "risk_score_pct": 45.0
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 43.4
+        }
+      },
+      {
+        "case_id": 6,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Benign",
+        "classical": {
+          "prediction": "Benign",
+          "risk_score_pct": 41.5
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 42.4
+        }
+      },
+      {
+        "case_id": 7,
+        "thumbnail": "data:image/png;base64,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",
+        "actual_label": "Benign",
+        "classical": {
+          "prediction": "Benign",
+          "risk_score_pct": 50.0
+        },
+        "quantum": {
+          "prediction": "Benign",
+          "risk_score_pct": 43.9
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+pennylane
+torch
+scikit-learn
+shap
+pandas
+numpy
+streamlit
+medmnist

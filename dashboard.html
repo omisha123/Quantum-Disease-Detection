@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hybrid QML Disease Detection Platform</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #171a23;
+    --card-border: #2a2e3a;
+    --text: #e8e9ed;
+    --muted: #9297a8;
+    --blue: #4f8cff;
+    --purple: #a066ff;
+    --red: #ff5c7a;
+    --green: #35d68a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 24px 80px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 0.95rem; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); }
+  .tab {
+    padding: 10px 18px; cursor: pointer; color: var(--muted); font-weight: 600;
+    border-bottom: 2px solid transparent; user-select: none; font-size: 0.95rem;
+  }
+  .tab.active { color: var(--text); border-bottom-color: var(--blue); }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 20px 22px; margin-bottom: 20px;
+  }
+  .card h2 { font-size: 1.05rem; margin: 0 0 14px; }
+  .card h3 { font-size: 0.9rem; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+
+  /* ---- Clinician view ---- */
+  .patient-selector { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .patient-btn {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--muted); cursor: pointer; font-size: 0.85rem;
+  }
+  .patient-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+  .risk-banner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; border-radius: 12px; margin-bottom: 20px;
+  }
+  .risk-banner.high { background: rgba(255,92,122,0.12); border: 1px solid rgba(255,92,122,0.4); }
+  .risk-banner.low { background: rgba(53,214,138,0.12); border: 1px solid rgba(53,214,138,0.4); }
+  .risk-label { font-size: 1.15rem; font-weight: 700; }
+  .risk-banner.high .risk-label { color: var(--red); }
+  .risk-banner.low .risk-label { color: var(--green); }
+  .risk-score { font-size: 2rem; font-weight: 800; }
+
+  .feature-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--card-border); }
+  .feature-row:last-child { border-bottom: none; }
+  .feature-name { width: 190px; font-size: 0.88rem; flex-shrink: 0; }
+  .feature-bar-track { flex: 1; height: 8px; background: #262a36; border-radius: 4px; overflow: hidden; }
+  .feature-bar-fill { height: 100%; border-radius: 4px; }
+  .feature-bar-fill.malignant { background: var(--red); }
+  .feature-bar-fill.benign { background: var(--green); }
+  .feature-direction { width: 150px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+  .feature-direction.malignant { color: var(--red); }
+  .feature-direction.benign { color: var(--green); }
+
+  .disclaimer {
+    font-size: 0.8rem; color: var(--muted); padding: 14px 16px; background: #1a1d27;
+    border-radius: 8px; border-left: 3px solid var(--blue); margin-top: 16px;
+  }
+
+  details { margin-top: 16px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 8px 0; }
+  .quantum-note { padding: 14px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+  /* ---- Researcher view ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--card-border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.model-name { font-weight: 600; }
+  td.model-name.classical { color: var(--blue); }
+  td.model-name.quantum { color: var(--purple); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 16px; }
+  .metric-box { background: #1a1d27; border-radius: 8px; padding: 14px 16px; }
+  .metric-box .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .metric-box .value { font-size: 1.3rem; font-weight: 700; }
+  .metric-box .value.classical { color: var(--blue); }
+  .metric-box .value.quantum { color: var(--purple); }
+
+  .pipeline-info { display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+  .pipeline-info b { color: var(--text); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ---- Imaging view ---- */
+  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .image-case {
+    background: #1a1d27; border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 14px; text-align: center;
+  }
+  .image-case img {
+    width: 100%; max-width: 140px; border-radius: 6px; margin-bottom: 10px;
+    image-rendering: pixelated; border: 1px solid var(--card-border);
+  }
+  .image-case .actual { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+  .image-case .pred-row {
+    display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 0;
+    border-top: 1px solid var(--card-border);
+  }
+  .image-case .pred-row .who { color: var(--muted); }
+  .image-case .pred-row .val.malignant { color: var(--red); font-weight: 600; }
+  .image-case .pred-row .val.benign { color: var(--green); font-weight: 600; }
+  .image-case .agree { margin-top: 8px; font-size: 0.72rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🧬 Hybrid Quantum-Classical ML Platform</h1>
+  <div class="subtitle">Early Disease Detection — Breast Cancer Wisconsin Dataset</div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="clinician">🩺 Clinician View</div>
+    <div class="tab" data-view="researcher">🔬 Researcher / Comparison View</div>
+    <div class="tab" data-view="imaging">🩻 Imaging Screening</div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <h3 style="margin-bottom:10px;">Dataset</h3>
+    <div class="patient-selector" id="datasetSelector"></div>
+    <div id="datasetWarning"></div>
+  </div>
+
+  <!-- ============ CLINICIAN VIEW ============ -->
+  <div class="view active" id="clinician">
+    <div class="card">
+      <h3>Select patient (test case)</h3>
+      <div class="patient-selector" id="patientSelector"></div>
+    </div>
+
+    <div id="riskBanner"></div>
+
+    <div class="card">
+      <h2>What's driving this assessment</h2>
+      <div class="subtitle" style="margin-bottom:16px;">Top clinical measurements pushing this patient's result toward malignant or benign.</div>
+      <div id="featureList"></div>
+    </div>
+
+    <div class="disclaimer">
+      ⚕️ <b>Clinical note:</b> This tool is a research prototype for early-detection screening support.
+      It is not a certified diagnostic device. All flagged results should be confirmed through standard
+      clinical workflow (biopsy, radiology, specialist review) before any treatment decision.
+    </div>
+
+    <details>
+      <summary>🔬 See quantum model's assessment (research/comparison, optional)</summary>
+      <div class="quantum-note" id="quantumNote"></div>
+    </details>
+  </div>
+
+  <!-- ============ RESEARCHER VIEW ============ -->
+  <div class="view" id="researcher">
+    <div class="card">
+      <h2>Dataset & Pipeline</h2>
+      <div class="pipeline-info" id="pipelineInfo"></div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Evaluation: Accuracy, Precision, Recall, F1, AUC-ROC, Training Time</h2>
+      <table id="evalTable"></table>
+      <div class="metric-grid" id="metricGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔍 Explainability (KernelSHAP) — per patient</h2>
+      <div class="subtitle" style="margin-bottom:16px;">Same model-agnostic method applied to both paths.</div>
+      <div class="patient-selector" id="patientSelectorResearcher"></div>
+      <div class="two-col" style="margin-top:20px;">
+        <div>
+          <h3 style="color:var(--blue);">Classical model — top features</h3>
+          <div id="classicalFeatures"></div>
+        </div>
+        <div>
+          <h3 style="color:var(--purple);">Quantum model — top features (PCA components)</h3>
+          <div id="quantumFeatures"></div>
+        </div>
+      </div>
+      <div class="disclaimer" id="groundTruth" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- ============ IMAGING VIEW ============ -->
+  <div class="view" id="imaging">
+    <div id="imagingWarning"></div>
+
+    <div class="card">
+      <h2>Dataset & Pipeline</h2>
+      <div class="pipeline-info" id="imagingPipelineInfo"></div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Evaluation: Accuracy, Precision, Recall, F1, AUC-ROC, Training Time</h2>
+      <table id="imagingEvalTable"></table>
+      <div class="metric-grid" id="imagingMetricGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>🖼️ Screening Cases</h2>
+      <div class="subtitle" style="margin-bottom:16px;">Classical CNN vs. quantum hybrid (CNN feature extractor → VQC) predictions per ultrasound image.</div>
+      <div class="image-grid" id="imagingCaseGrid"></div>
+    </div>
+
+    <div class="disclaimer">
+      ⚕️ <b>Clinical note:</b> This tool is a research prototype for early-detection screening support.
+      It is not a certified diagnostic device. All flagged results should be confirmed through standard
+      clinical workflow (biopsy, radiology, specialist review) before any treatment decision.
+    </div>
+  </div>
+</div>
+
+<script>
+let DATA = null;
+let selectedDataset = null;
+let selectedPatient = 0;
+
+// ---------- Load pre-computed results ----------
+fetch('results.json')
+  .then(r => r.json())
+  .then(data => {
+    DATA = data;
+    const keys = Object.keys(DATA.datasets);
+    if (keys.length === 0) {
+      document.querySelector('.container').innerHTML =
+        '<h1>⚠️ No datasets found in results.json</h1><p>Run <code>python3 export_results.py</code> first.</p>';
+      return;
+    }
+    selectedDataset = keys[0];
+    initDatasetSelector();
+    initPatientSelectors();
+    renderClinicianView();
+    renderResearcherView();
+    renderImagingView();
+  })
+  .catch(err => {
+    document.querySelector('.container').innerHTML =
+      '<h1>⚠️ Could not load results.json</h1><p>Run <code>python3 export_results.py</code> first, ' +
+      'then serve this folder (e.g. <code>python3 -m http.server</code>) and open dashboard.html from there.</p>';
+  });
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.view).classList.add('active');
+  });
+});
+
+// ---------- Dataset selector ----------
+function initDatasetSelector() {
+  const container = document.getElementById('datasetSelector');
+  container.innerHTML = '';
+  Object.keys(DATA.datasets).forEach(key => {
+    const ds = DATA.datasets[key];
+    const btn = document.createElement('div');
+    btn.className = 'patient-btn' + (key === selectedDataset ? ' active' : '');
+    btn.textContent = ds.display_name + (ds.is_real_data ? '' : ' (demo data)');
+    btn.addEventListener('click', () => {
+      selectedDataset = key;
+      selectedPatient = 0;
+      document.querySelectorAll('#datasetSelector .patient-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      initPatientSelectors();
+      renderClinicianView();
+      renderResearcherView();
+    });
+    container.appendChild(btn);
+  });
+  renderDatasetWarning();
+}
+
+function renderDatasetWarning() {
+  const ds = DATA.datasets[selectedDataset];
+  const warnDiv = document.getElementById('datasetWarning');
+  if (!ds.is_real_data) {
+    warnDiv.innerHTML = `<div class="disclaimer" style="margin-top:12px; border-left-color: var(--red);">
+      ⚠️ This dataset is using <b>synthetic placeholder data</b> shaped like the real dataset
+      (real download requires a Kaggle account — see README). Numbers here demonstrate the
+      pipeline works correctly, not real-world accuracy.
+    </div>`;
+  } else {
+    warnDiv.innerHTML = `<div style="color:var(--muted); font-size:0.85rem; margin-top:10px;">${ds.framing}</div>`;
+  }
+}
+
+function initPatientSelectors() {
+  const ds = DATA.datasets[selectedDataset];
+  const ids = ds.patients.map(p => p.patient_id);
+  [document.getElementById('patientSelector'), document.getElementById('patientSelectorResearcher')].forEach(container => {
+    container.innerHTML = '';
+    ids.forEach(id => {
+      const btn = document.createElement('div');
+      btn.className = 'patient-btn' + (id === selectedPatient ? ' active' : '');
+      btn.textContent = 'Case ' + (id + 1);
+      btn.addEventListener('click', () => {
+        selectedPatient = id;
+        [document.getElementById('patientSelector'), document.getElementById('patientSelectorResearcher')].forEach(c => {
+          Array.from(c.children).forEach(b => {
+            b.classList.toggle('active', b.textContent === 'Case ' + (id + 1));
+          });
+        });
+        renderClinicianView();
+        renderResearcherView();
+      });
+      container.appendChild(btn);
+    });
+  });
+}
+
+function getPatient(id) {
+  return DATA.datasets[selectedDataset].patients.find(p => p.patient_id === id);
+}
+
+// ---------- Clinician View ----------
+function renderClinicianView() {
+  renderDatasetWarning();
+  const p = getPatient(selectedPatient);
+  const c = p.classical;
+  const isHighRisk = c.prediction === 'Positive/High-risk';
+
+  const banner = document.getElementById('riskBanner');
+  banner.innerHTML = `
+    <div class="card risk-banner ${isHighRisk ? 'high' : 'low'}">
+      <div>
+        <div class="risk-label">${isHighRisk ? '⚠️ HIGH RISK / POSITIVE' : '✅ LOW RISK / NEGATIVE'}</div>
+        <div style="color:var(--muted); font-size:0.85rem; margin-top:6px;">
+          Actual outcome on record: <b style="color:var(--text)">${p.actual_label}</b>
+        </div>
+      </div>
+      <div class="risk-score">${c.risk_score_pct}%</div>
+    </div>
+  `;
+
+  const list = document.getElementById('featureList');
+  list.innerHTML = c.top_features.map(f => {
+    const highRisk = f.impact < 0;
+    const strength = Math.min(Math.abs(f.impact) * 400, 100);
+    return `
+      <div class="feature-row">
+        <div class="feature-name">${f.feature}</div>
+        <div class="feature-bar-track">
+          <div class="feature-bar-fill ${highRisk ? 'malignant' : 'benign'}" style="width:${strength}%"></div>
+        </div>
+        <div class="feature-direction ${highRisk ? 'malignant' : 'benign'}">
+          ${highRisk ? '🔴 → higher risk' : '🟢 → lower risk'}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const q = p.quantum;
+  const agree = c.prediction === q.prediction;
+  document.getElementById('quantumNote').innerHTML = `
+    <p>The quantum hybrid model uses a compressed feature set (PCA-reduced) due to current qubit
+    hardware limits, so its per-feature explanation is less directly clinically readable — shown here
+    for research transparency, not primary clinical use.</p>
+    <p>Quantum model assessment: <b>${q.prediction}</b> (risk score: ${q.risk_score_pct}%)</p>
+    <p>${agree ? '✅ Agrees with classical model' : '⚠️ Disagrees with classical model — worth a closer look'}</p>
+  `;
+}
+
+// ---------- Researcher View ----------
+function renderResearcherView() {
+  const ds = DATA.datasets[selectedDataset];
+  const info = ds.dataset_info;
+  document.getElementById('pipelineInfo').innerHTML = `
+    <div><b>${info.name}</b></div>
+    <div>Train: <b>${info.n_train}</b> / Test: <b>${info.n_test}</b></div>
+    <div>Classical features: <b>${info.n_features_classical}</b></div>
+    <div>Quantum features (qubits): <b>${info.n_features_quantum}</b></div>
+    <div>PCA explained variance: <b>${(info.pca_explained_variance * 100).toFixed(1)}%</b></div>
+  `;
+
+  const ev = ds.evaluation;
+  document.getElementById('evalTable').innerHTML = `
+    <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Training Time</th></tr>
+    <tr>
+      <td class="model-name classical">🔵 ${ev.classical.model}</td>
+      <td>${ev.classical.accuracy.toFixed(3)}</td>
+      <td>${ev.classical.precision.toFixed(3)}</td>
+      <td>${ev.classical.recall.toFixed(3)}</td>
+      <td>${ev.classical.f1.toFixed(3)}</td>
+      <td>${ev.classical.auc_roc.toFixed(3)}</td>
+      <td>${ev.classical.training_time_sec}s</td>
+    </tr>
+    <tr>
+      <td class="model-name quantum">🟣 ${ev.quantum.model}</td>
+      <td>${ev.quantum.accuracy.toFixed(3)}</td>
+      <td>${ev.quantum.precision.toFixed(3)}</td>
+      <td>${ev.quantum.recall.toFixed(3)}</td>
+      <td>${ev.quantum.f1.toFixed(3)}</td>
+      <td>${ev.quantum.auc_roc.toFixed(3)}</td>
+      <td>${ev.quantum.training_time_sec}s</td>
+    </tr>
+  `;
+
+  document.getElementById('metricGrid').innerHTML = ['accuracy','precision','recall','f1'].map(m => `
+    <div class="metric-box">
+      <div class="label">Classical ${m}</div>
+      <div class="value classical">${ev.classical[m].toFixed(3)}</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">Quantum ${m}</div>
+      <div class="value quantum">${ev.quantum[m].toFixed(3)}</div>
+    </div>
+  `).join('');
+
+  const p = getPatient(selectedPatient);
+  document.getElementById('classicalFeatures').innerHTML = p.classical.top_features.map(f =>
+    `<div style="padding:6px 0; font-size:0.85rem;">
+      <b>${f.feature}</b>: ${f.impact.toFixed(4)}
+      ${f.impact < 0 ? '<span style="color:var(--red)">→ higher risk</span>' : '<span style="color:var(--green)">→ lower risk</span>'}
+    </div>`
+  ).join('');
+  document.getElementById('quantumFeatures').innerHTML = p.quantum.top_features.map(f =>
+    `<div style="padding:6px 0; font-size:0.85rem;">
+      <b>${f.feature}</b>: ${f.impact.toFixed(4)}
+      ${f.impact < 0 ? '<span style="color:var(--red)">→ higher risk</span>' : '<span style="color:var(--green)">→ lower risk</span>'}
+    </div>`
+  ).join('');
+  document.getElementById('groundTruth').innerHTML = `Ground truth for this case: <b>${p.actual_label}</b>`;
+}
+
+// ---------- Imaging View ----------
+function renderImagingView() {
+  const img = DATA.imaging;
+  const warnDiv = document.getElementById('imagingWarning');
+  if (!img) {
+    warnDiv.innerHTML = `<div class="disclaimer" style="border-left-color: var(--red);">
+      ⚠️ No imaging results found. Run <code>python3 export_image_results.py</code> to generate them.
+    </div>`;
+    document.getElementById('imagingPipelineInfo').innerHTML = '';
+    document.getElementById('imagingEvalTable').innerHTML = '';
+    document.getElementById('imagingMetricGrid').innerHTML = '';
+    document.getElementById('imagingCaseGrid').innerHTML = '';
+    return;
+  }
+
+  if (!img.is_real_data) {
+    warnDiv.innerHTML = `<div class="disclaimer" style="border-left-color: var(--red);">
+      ⚠️ This view is using <b>synthetic placeholder ultrasound images</b> shaped like the real
+      BreastMNIST dataset (real download requires internet access to Zenodo — see README).
+      Numbers and images here demonstrate the pipeline works correctly, not real-world accuracy.
+      ${img.engine ? `<br><span style="opacity:0.85;">Engine: ${img.engine}</span>` : ''}
+    </div>`;
+  } else {
+    warnDiv.innerHTML = `<div style="color:var(--muted); font-size:0.85rem; margin-bottom:12px;">
+      ${img.framing}${img.engine ? ` — Engine: ${img.engine}` : ''}
+    </div>`;
+  }
+
+  const info = img.dataset_info;
+  document.getElementById('imagingPipelineInfo').innerHTML = `
+    <div><b>${info.name}</b></div>
+    <div>Train: <b>${info.n_train}</b> / Test: <b>${info.n_test}</b></div>
+    <div>Quantum features (qubits): <b>${info.n_qubits}</b></div>
+  `;
+
+  const ev = img.evaluation;
+  document.getElementById('imagingEvalTable').innerHTML = `
+    <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Training Time</th></tr>
+    <tr>
+      <td class="model-name classical">🔵 ${ev.classical.model}</td>
+      <td>${ev.classical.accuracy.toFixed(3)}</td>
+      <td>${ev.classical.precision.toFixed(3)}</td>
+      <td>${ev.classical.recall.toFixed(3)}</td>
+      <td>${ev.classical.f1.toFixed(3)}</td>
+      <td>${isFinite(ev.classical.auc_roc) ? ev.classical.auc_roc.toFixed(3) : '—'}</td>
+      <td>${ev.classical.training_time_sec}s</td>
+    </tr>
+    <tr>
+      <td class="model-name quantum">🟣 ${ev.quantum.model}</td>
+      <td>${ev.quantum.accuracy.toFixed(3)}</td>
+      <td>${ev.quantum.precision.toFixed(3)}</td>
+      <td>${ev.quantum.recall.toFixed(3)}</td>
+      <td>${ev.quantum.f1.toFixed(3)}</td>
+      <td>${isFinite(ev.quantum.auc_roc) ? ev.quantum.auc_roc.toFixed(3) : '—'}</td>
+      <td>${ev.quantum.training_time_sec}s</td>
+    </tr>
+  `;
+
+  document.getElementById('imagingMetricGrid').innerHTML = ['accuracy','precision','recall','f1'].map(m => `
+    <div class="metric-box">
+      <div class="label">Classical ${m}</div>
+      <div class="value classical">${ev.classical[m].toFixed(3)}</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">Quantum ${m}</div>
+      <div class="value quantum">${ev.quantum[m].toFixed(3)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('imagingCaseGrid').innerHTML = img.cases.map(c => {
+    const cClass = c.classical.prediction === 'Malignant' ? 'malignant' : 'benign';
+    const qClass = c.quantum.prediction === 'Malignant' ? 'malignant' : 'benign';
+    const agree = c.classical.prediction === c.quantum.prediction;
+    return `
+      <div class="image-case">
+        <img src="${c.thumbnail}" alt="Ultrasound case ${c.case_id + 1}">
+        <div class="actual">Case ${c.case_id + 1} — actual: <b style="color:var(--text)">${c.actual_label}</b></div>
+        <div class="pred-row">
+          <span class="who">🔵 Classical</span>
+          <span class="val ${cClass}">${c.classical.prediction} (${c.classical.risk_score_pct}%)</span>
+        </div>
+        <div class="pred-row">
+          <span class="who">🟣 Quantum</span>
+          <span class="val ${qClass}">${c.quantum.prediction} (${c.quantum.risk_score_pct}%)</span>
+        </div>
+        <div class="agree">${agree ? '✅ Models agree' : '⚠️ Models disagree'}</div>
+      </div>
+    `;
+  }).join('');
+}
+</script>
+</body>
+</html>
