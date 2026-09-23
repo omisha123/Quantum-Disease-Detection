@@ -27,14 +27,28 @@ pip install -r requirements.txt
 ## Run order (test each piece standalone first)
 
 ```bash
-python3 data_pipeline.py           # sanity check preprocessing shapes
-python3 classical_model.py         # classical baseline accuracy (Breast Cancer)
+pip install -r requirements.txt
+
+# 4. Tabular & Dataset Pipelines
+python3 data_pipeline.py           # sanity check preprocessing shapes (Breast Cancer)
+python3 dataset_leukemia.py        # load and process secondary dataset (Leukemia)
+
+# 5. Model Training & Evaluation (Tabular)
+python3 classical_model.py         # classical baseline accuracy
 python3 quantum_model.py           # quantum hybrid accuracy (slower - simulating circuits)
+
+# 6. Image Pipeline & Model Training
+python3 image_pipeline.py          # image preprocessing & feature extraction pipeline
 python3 image_model.py             # image screening: classical CNN vs quantum hybrid CNN
+
+# 7. Analysis, Metrics & JSON Exports for Dashboard
 python3 evaluate.py                # full comparison table, saved to results_comparison.csv
-python3 explainability.py          # SHAP demo on a few patients
-python3 export_results.py          # pre-compute results.json for the static dashboard
-python3 -m http.server 8000        # then open http://localhost:8000/dashboard.html
+python3 explainability.py          # SHAP explainability demo on test cases
+python3 export_results.py          # pre-compute results.json for tabular datasets
+python3 export_image_results.py    # pre-compute results.json for ultrasound imaging cases
+
+# 8. Serve & View Dashboard
+python3 -m http.server 8000        # serve static dashboard at http://localhost:8000/dashboard.html
 ```
 
 ## Two disease-detection framings in this platform

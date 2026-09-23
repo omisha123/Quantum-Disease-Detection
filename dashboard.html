@@ -284,6 +284,7 @@ function initDatasetSelector() {
       initPatientSelectors();
       renderClinicianView();
       renderResearcherView();
+      renderImagingView();
     });
     container.appendChild(btn);
   });
@@ -469,7 +470,7 @@ function renderImagingView() {
       ${img.framing}${img.engine ? ` — Engine: ${img.engine}` : ''}
     </div>`;
   }
-
+  
   const info = img.dataset_info;
   document.getElementById('imagingPipelineInfo').innerHTML = `
     <div><b>${info.name}</b></div>
@@ -477,7 +478,10 @@ function renderImagingView() {
     <div>Quantum features (qubits): <b>${info.n_qubits}</b></div>
   `;
 
-  const ev = img.evaluation;
+  // Explicitly reference the current dataset from DATA.datasets
+  const currentDataset = DATA.datasets[selectedDataset] || Object.values(DATA.datasets)[0];
+  const ev = currentDataset ? currentDataset.evaluation : img.evaluation;
+
   document.getElementById('imagingEvalTable').innerHTML = `
     <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Training Time</th></tr>
     <tr>
@@ -486,7 +490,7 @@ function renderImagingView() {
       <td>${ev.classical.precision.toFixed(3)}</td>
       <td>${ev.classical.recall.toFixed(3)}</td>
       <td>${ev.classical.f1.toFixed(3)}</td>
-      <td>${isFinite(ev.classical.auc_roc) ? ev.classical.auc_roc.toFixed(3) : '—'}</td>
+      <td>${Number.isFinite(ev.classical.auc_roc) ? ev.classical.auc_roc.toFixed(3) : '—'}</td>
       <td>${ev.classical.training_time_sec}s</td>
     </tr>
     <tr>
@@ -495,7 +499,7 @@ function renderImagingView() {
       <td>${ev.quantum.precision.toFixed(3)}</td>
       <td>${ev.quantum.recall.toFixed(3)}</td>
       <td>${ev.quantum.f1.toFixed(3)}</td>
-      <td>${isFinite(ev.quantum.auc_roc) ? ev.quantum.auc_roc.toFixed(3) : '—'}</td>
+      <td>${Number.isFinite(ev.quantum.auc_roc) ? ev.quantum.auc_roc.toFixed(3) : '—'}</td>
       <td>${ev.quantum.training_time_sec}s</td>
     </tr>
   `;

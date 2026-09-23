@@ -16,10 +16,22 @@ def explain_model(model, X_train, X_explain, feature_names, n_background=30, nsa
     nsamples: number of coalition samples KernelSHAP draws per prediction (smaller = faster)
     """
     # Background dataset: summarize with k-means to keep it fast
-    background = shap.kmeans(X_train, min(n_background, len(X_train)))
+    k = min(n_background, len(X_train))
+    kmeans_obj = shap.kmeans(X_train, k)
+    background = kmeans_obj.data if hasattr(kmeans_obj, 'data') else kmeans_obj
 
     explainer = shap.KernelExplainer(model.predict_proba, background)
-    shap_values = explainer.shap_values(X_explain, nsamples=nsamples)
+    raw_shap_values = explainer.shap_values(X_explain, nsamples=nsamples)
+
+    # Handle multi-class / binary output from predict_proba
+    # shap_values can be a list [array_class0, array_class1] or a 3D array
+    if isinstance(raw_shap_values, list):
+        # Select SHAP values for positive class (Class 1 / Malignant)
+        shap_values = raw_shap_values[1] if len(raw_shap_values) > 1 else raw_shap_values[0]
+    elif isinstance(raw_shap_values, np.ndarray) and raw_shap_values.ndim == 3:
+        shap_values = raw_shap_values[:, :, 1]
+    else:
+        shap_values = raw_shap_values
 
     return shap_values, explainer
 
@@ -49,5 +61,5 @@ if __name__ == "__main__":
     for i in range(5):
         print(f"\nPatient {i} - top features driving prediction:")
         for feat, val in top_features_for_patient(shap_values[i], feature_names):
-            direction = "toward malignant risk" if val < 0 else "toward benign"
+            direction = "toward malignant risk" if val > 0 else "toward benign"
             print(f"  {feat}: {val:+.4f} ({direction})")

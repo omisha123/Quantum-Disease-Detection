@@ -6,3 +6,7 @@ pandas
 numpy
 streamlit
 medmnist
+torchvision
+transformers
+pillow
+matplotlib

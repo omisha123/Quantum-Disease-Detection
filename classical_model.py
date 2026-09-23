@@ -1,7 +1,7 @@
 """
 Classical Ensemble Path - Full Feature Set
-Blocks: SVM RBF kernel -> \\
-                            Meta Combiner (Logistic Regression) -> Prediction B
+Blocks: SVM RBF kernel -> \
+                        Meta Combiner (Logistic Regression) -> Prediction B
         Random Forest  -> /
 """
 
@@ -13,9 +13,19 @@ from sklearn.linear_model import LogisticRegression
 
 class ClassicalEnsemble:
     def __init__(self, random_state=42):
-        self.svm = SVC(kernel="rbf", probability=True, random_state=random_state)
-        self.rf = RandomForestClassifier(n_estimators=200, random_state=random_state)
-        self.meta_combiner = LogisticRegression()
+        # Added class_weight="balanced" to handle MIAS severe class imbalance
+        self.svm = SVC(
+            kernel="rbf", 
+            probability=True, 
+            class_weight="balanced", 
+            random_state=random_state
+        )
+        self.rf = RandomForestClassifier(
+            n_estimators=200, 
+            class_weight="balanced", 
+            random_state=random_state
+        )
+        self.meta_combiner = LogisticRegression(class_weight="balanced")
         self.is_fitted = False
 
     def fit(self, X_train, y_train):
@@ -40,21 +50,26 @@ class ClassicalEnsemble:
         meta_X = np.column_stack([svm_probs, rf_probs])
         return self.meta_combiner.predict_proba(meta_X)[:, 1]
 
-    def predict(self, X):
-        """Prediction B - final binary output."""
+    def predict(self, X, threshold=0.35):
+        """Prediction B - final binary output with customizable probability decision threshold."""
         probs = self.predict_proba(X)
-        return (probs >= 0.5).astype(int)
+        return (probs >= threshold).astype(int)
 
 
 if __name__ == "__main__":
-    from data_pipeline import load_breast_cancer_data, clean_and_scale
+    from data_pipeline import load_mias_swin_data, clean_and_scale
     from sklearn.metrics import accuracy_score, classification_report
 
-    X, y = load_breast_cancer_data()
+    print("Loading MIAS mammography dataset with Swin Transformer embeddings...")
+    X, y = load_mias_swin_data(data_dir="./data/MIAS")
     X_train, X_test, y_train, y_test, scaler, feature_names = clean_and_scale(X, y)
 
+    print("\nTraining Classical Ensemble model...")
     model = ClassicalEnsemble().fit(X_train, y_train)
-    preds = model.predict(X_test)
+    
+    # Predict using the tuned decision threshold
+    preds = model.predict(X_test, threshold=0.35)
 
-    print(f"Classical Ensemble Accuracy: {accuracy_score(y_test, preds):.4f}")
-    print(classification_report(y_test, preds, target_names=["malignant", "benign"]))
+    print(f"\nClassical Ensemble Accuracy: {accuracy_score(y_test, preds):.4f}")
+    print("\nClassification Report:")
+    print(classification_report(y_test, preds, target_names=["Benign/Normal", "Malignant"], zero_division=0))

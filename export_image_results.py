@@ -1,19 +1,8 @@
 """
-Pre-computes results for the IMAGING path (breast ultrasound screening) and
-merges them into results.json under the "imaging" key, alongside the tabular
-"datasets" already produced by export_results.py.
+Pre-computes results for the MIAS Mammography Swin-Quantum path and
+merges them into results.json under the "imaging" key for the dashboard.
 
-Run this once before your demo: python3 export_image_results.py
-Then open dashboard.html - the new "Imaging Screening" tab reads this data.
-
-Mirrors export_results.py's pattern: real classical CNN / quantum hybrid
-CNN+VQC training (image_model.py) is used when torch + pennylane are
-available. If they aren't installed in this environment, this script falls
-back to a lightweight scikit-learn approximation of the same two paths
-(PCA+RandomForest for "classical", PCA + closed-form angle-embedding
-feature map + LogisticRegression for "quantum-hybrid") so the dashboard can
-still be demoed end-to-end. This mirrors the same real-data/synthetic-data
-fallback pattern image_model.py and image_pipeline.py already use.
+Run before demo: python export_image_results.py
 """
 
 import base64
@@ -21,120 +10,87 @@ import io
 import json
 import os
 import time
+import glob
+import warnings
 
 import numpy as np
+import pandas as pd
 from PIL import Image
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 )
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 
-from image_pipeline import load_breast_ultrasound_images, make_synthetic_ultrasound_data
+# Suppress sklearn future warnings regarding SVC probability
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# Imports from your actual Swin/Quantum project files
+from image_pipeline import load_mias_dataset, QuantumSwinHybridEnsemble
+from classical_model import ClassicalEnsemble
 
 RESULTS_PATH = "results.json"
 N_CASES_TO_SHOW = 8
 N_QUBITS = 4
-
-
-def get_data():
-    try:
-        X_train, y_train, X_test, y_test = load_breast_ultrasound_images()
-        is_real = True
-    except Exception as e:
-        print(f"Real BreastMNIST unavailable here ({type(e).__name__}), using SYNTHETIC "
-              f"placeholder images shaped like the real dataset (see README).")
-        X_train, y_train, X_test, y_test = make_synthetic_ultrasound_data(n_train=160, n_test=40)
-        is_real = False
-    return X_train, y_train, X_test, y_test, is_real
+DATA_DIR = "./data/MIAS"
 
 
 def eval_metrics(name, y_true, preds, probs, fit_time):
+    # Ensure 1D probability array for positive class
+    if isinstance(probs, np.ndarray) and probs.ndim == 2:
+        probs = probs[:, 1] if probs.shape[1] > 1 else probs[:, 0]
+
     return {
         "model": name,
-        "accuracy": accuracy_score(y_true, preds),
-        "precision": precision_score(y_true, preds, zero_division=0),
-        "recall": recall_score(y_true, preds, zero_division=0),
-        "f1": f1_score(y_true, preds, zero_division=0),
-        "auc_roc": roc_auc_score(y_true, probs) if len(set(y_true)) > 1 else float("nan"),
+        "accuracy": float(accuracy_score(y_true, preds)),
+        "precision": float(precision_score(y_true, preds, zero_division=0)),
+        "recall": float(recall_score(y_true, preds, zero_division=0)),
+        "f1": float(f1_score(y_true, preds, zero_division=0)),
+        "auc_roc": float(roc_auc_score(y_true, probs)) if len(set(y_true)) > 1 else float("nan"),
         "training_time_sec": round(fit_time, 2),
     }
 
 
-def try_real_pipeline(X_train, y_train, X_test, y_test):
-    """Real path from image_model.py: Classical CNN vs CNN-feature-extractor + VQC."""
-    import torch
-    from image_model import (
-        train_classical_cnn, cnn_predict_proba,
-        train_hybrid_cnn_quantum, hybrid_cnn_predict_proba
-    )
-
-    subset = min(120, len(X_train))
-
-    t0 = time.time()
-    cnn_model = train_classical_cnn(X_train[:subset], y_train[:subset], epochs=15)
-    classical_time = time.time() - t0
-    classical_probs = cnn_predict_proba(cnn_model, X_test)
-    classical_preds = (classical_probs >= 0.5).astype(int)
-
-    t0 = time.time()
-    hybrid_model = train_hybrid_cnn_quantum(X_train[:subset], y_train[:subset], n_qubits=N_QUBITS, epochs=10)
-    quantum_time = time.time() - t0
-    quantum_probs = hybrid_cnn_predict_proba(hybrid_model, X_test)
-    quantum_preds = (quantum_probs >= 0.5).astype(int)
-
-    return classical_probs, classical_preds, classical_time, quantum_probs, quantum_preds, quantum_time
+def image_file_to_data_uri(img_path, display_size=112):
+    """Converts a local MIAS mammogram file (.pgm/.png/.jpg) into a base64 URI for web dashboard rendering."""
+    try:
+        im = Image.open(img_path).convert("L").resize((display_size, display_size), Image.Resampling.NEAREST)
+        buf = io.BytesIO()
+        im.save(buf, format="PNG")
+        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+    except Exception as e:
+        print(f"Could not load thumbnail for {img_path}: {e}")
+        return ""
 
 
-def fallback_pipeline(X_train, y_train, X_test, y_test):
-    """
-    Lightweight scikit-learn stand-in for when torch/pennylane aren't installed.
-    Same architecture idea, shape-for-shape:
-      Classical: flattened pixels -> PCA(50) -> RandomForest  (proxy for the CNN)
-      Quantum:   flattened pixels -> PCA(N_QUBITS) -> closed-form RY angle-embedding
-                 expectation values (cos of the scaled pixel-PCA angle per qubit,
-                 the same quantity VQC's AngleEmbedding + PauliZ readout would give
-                 for a single-layer, no-entanglement circuit) -> LogisticRegression
-    """
-    from sklearn.decomposition import PCA
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.preprocessing import StandardScaler
+def find_metadata_csv():
+    """Robust lookup for the MIAS metadata CSV across multiple directory structures."""
+    possible_paths = [
+        os.path.join("data", "mias_info.csv"),
+        os.path.join(DATA_DIR, "mias_info.csv"),
+        "mias_info.csv",
+        "./data/mias_info.csv"
+    ] + glob.glob(os.path.join(DATA_DIR, "*info*.csv")) + glob.glob("data/*info*.csv")
 
-    Xtr_flat = X_train.reshape(len(X_train), -1)
-    Xte_flat = X_test.reshape(len(X_test), -1)
-
-    # ---- Classical path ----
-    t0 = time.time()
-    n_comp_c = min(50, Xtr_flat.shape[1], Xtr_flat.shape[0] - 1)
-    pca_c = PCA(n_components=n_comp_c).fit(Xtr_flat)
-    clf = RandomForestClassifier(n_estimators=200, random_state=42).fit(pca_c.transform(Xtr_flat), y_train)
-    classical_time = time.time() - t0
-    classical_probs = clf.predict_proba(pca_c.transform(Xte_flat))[:, 1]
-    classical_preds = (classical_probs >= 0.5).astype(int)
-
-    # ---- Quantum-hybrid path ----
-    t0 = time.time()
-    n_qubits = min(N_QUBITS, Xtr_flat.shape[1], Xtr_flat.shape[0] - 1)
-    pca_q = PCA(n_components=n_qubits).fit(Xtr_flat)
-    scaler_q = StandardScaler().fit(pca_q.transform(Xtr_flat))
-
-    def angle_features(X_raw):
-        angles = np.clip(scaler_q.transform(pca_q.transform(X_raw)), -np.pi, np.pi)
-        return np.cos(angles)  # <Z> expectation of an RY(angle) rotation from |0>
-
-    meta = LogisticRegression().fit(angle_features(Xtr_flat), y_train)
-    quantum_time = time.time() - t0
-    quantum_probs = meta.predict_proba(angle_features(Xte_flat))[:, 1]
-    quantum_preds = (quantum_probs >= 0.5).astype(int)
-
-    return classical_probs, classical_preds, classical_time, quantum_probs, quantum_preds, quantum_time
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+    return None
 
 
-def image_to_data_uri(img_2d, display_size=112):
-    arr = (np.clip(img_2d, 0, 1) * 255).astype(np.uint8)
-    im = Image.fromarray(arr, mode="L").resize((display_size, display_size), Image.NEAREST)
-    buf = io.BytesIO()
-    im.save(buf, format="PNG")
-    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+def get_all_dataset_images():
+    """Scans dataset directories directly for image files as a fallback."""
+    valid_exts = ("*.pgm", "*.png", "*.jpg", "*.jpeg", "*.PGM", "*.PNG", "*.JPG")
+    found_images = []
+    search_dirs = [DATA_DIR, "./data", "data/MIAS", "MIAS"]
+    
+    for d in search_dirs:
+        if os.path.exists(d):
+            for ext in valid_exts:
+                found_images.extend(glob.glob(os.path.join(d, ext)))
+                
+    # Deduplicate and sort
+    return sorted(list(set(found_images)))
 
 
 def main():
@@ -145,59 +101,148 @@ def main():
         output = {}
     output.setdefault("datasets", {})
 
-    X_train, y_train, X_test, y_test, is_real = get_data()
-    print(f"Imaging data: train={X_train.shape}, test={X_test.shape}, real_data={is_real}")
+    print("1. Loading MIAS dataset and extracting Swin Transformer embeddings...")
+    X_swin, y = load_mias_dataset(data_dir=DATA_DIR)
 
-    try:
-        print("Attempting real CNN / quantum-hybrid CNN+VQC training (torch + pennylane)...")
-        (classical_probs, classical_preds, classical_time,
-         quantum_probs, quantum_preds, quantum_time) = try_real_pipeline(X_train, y_train, X_test, y_test)
-        engine = "real (ClassicalCNN vs CNN-feature-extractor+VQC, from image_model.py)"
-    except Exception as e:
-        print(f"torch/pennylane not available/working here ({type(e).__name__}: {e}); "
-              f"using scikit-learn fallback approximation "
-              f"of the same classical-vs-quantum-hybrid architecture.")
-        (classical_probs, classical_preds, classical_time,
-         quantum_probs, quantum_preds, quantum_time) = fallback_pipeline(X_train, y_train, X_test, y_test)
-        engine = "fallback (PCA+RandomForest vs PCA+angle-embedding+LogisticRegression - " \
-                 "install torch+pennylane and rerun for the real CNN/VQC models)"
+    # Dimensionality Reduction for Quantum Circuit
+    pca = PCA(n_components=N_QUBITS)
+    X_quantum = pca.fit_transform(X_swin)
 
-    classical_result = eval_metrics("Classical CNN", y_test, classical_preds, classical_probs, classical_time)
-    quantum_result = eval_metrics("Quantum Hybrid CNN+VQC", y_test, quantum_preds, quantum_probs, quantum_time)
+    # Train / Test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_swin, y, test_size=0.2, random_state=42, stratify=y
+    )
+    X_train_q, X_test_q, _, _ = train_test_split(
+        X_quantum, y, test_size=0.2, random_state=42, stratify=y
+    )
 
-    print(f"Classical: {classical_result}")
-    print(f"Quantum:   {quantum_result}")
+    # --- 2. Train Classical Path ---
+    print("\n2. Training Classical Ensemble (Swin Features -> SVM + RF)...")
+    t0 = time.time()
+    classical_model = ClassicalEnsemble()
+    classical_model.fit(X_train, y_train)
+    classical_time = time.time() - t0
+
+    classical_probs = classical_model.predict_proba(X_test)
+    if classical_probs.ndim == 2:
+        classical_probs_pos = classical_probs[:, 1]
+    else:
+        classical_probs_pos = classical_probs
+    
+    # Lower threshold to 0.35 to catch positive malignant cases
+    classical_preds = (classical_probs_pos >= 0.35).astype(int)
+
+    # --- 3. Train Quantum Path ---
+    print("\n3. Training Quantum Hybrid Ensemble (Swin PCA -> QSVM + VQC)...")
+    t0 = time.time()
+    quantum_model = QuantumSwinHybridEnsemble(n_qubits=N_QUBITS, vqc_epochs=20)
+    quantum_model.fit(X_train_q, y_train)
+    quantum_time = time.time() - t0
+
+    quantum_probs = quantum_model.predict_proba(X_test_q)
+    if quantum_probs.ndim == 2:
+        quantum_probs_pos = quantum_probs[:, 1]
+    else:
+        quantum_probs_pos = quantum_probs
+    
+    # Predict using threshold = 0.35 to match class imbalance fix
+    quantum_preds = quantum_model.predict(X_test_q, threshold=0.35)
+
+    # --- 4. Evaluate Metrics ---
+    classical_result = eval_metrics("Classical Swin Ensemble", y_test, classical_preds, classical_probs_pos, classical_time)
+    quantum_result = eval_metrics("Quantum Swin Hybrid Ensemble", y_test, quantum_preds, quantum_probs_pos, quantum_time)
+
+    print(f"\nClassical Results: {classical_result}")
+    print(f"Quantum Results:   {quantum_result}")
+
+    # --- 5. Generate Test Case Thumbnails for Dashboard ---
+    csv_path = find_metadata_csv()
+    df = None
+    id_col = None
+
+    if csv_path:
+        print(f"\nUsing metadata CSV for thumbnails: {csv_path}")
+        try:
+            raw_rows = []
+            with open(csv_path, 'r') as f:
+                for line in f:
+                    parts = line.strip().split()
+                    if parts and parts[0].upper() not in ['REFNUM', 'MIAS']:
+                        raw_rows.append(parts[0])
+            df = pd.DataFrame({'REFNUM': raw_rows})
+            id_col = 'REFNUM'
+        except Exception as e:
+            print(f"Could not parse CSV for thumbnails: {e}")
+
+    # Pre-fetch direct images as fallback
+    fallback_images = get_all_dataset_images()
+    print(f"Found {len(fallback_images)} image files in local directories.")
 
     n_cases = min(N_CASES_TO_SHOW, len(X_test))
     cases = []
+
     for i in range(n_cases):
-        # BreastMNIST convention: 0 = malignant, 1 = normal/benign
-        actual = "Benign" if y_test[i] == 1 else "Malignant"
-        c_pred = "Benign" if classical_preds[i] == 1 else "Malignant"
-        q_pred = "Benign" if quantum_preds[i] == 1 else "Malignant"
+        actual = "Malignant" if y_test[i] == 1 else "Benign/Normal"
+        c_pred = "Malignant" if classical_preds[i] == 1 else "Benign/Normal"
+        q_pred = "Malignant" if quantum_preds[i] == 1 else "Benign/Normal"
+
+        thumb_uri = ""
+
+        # Strategy A: Try metadata CSV ID lookup
+        if df is not None and id_col in df.columns and i < len(df):
+            file_id = str(df.iloc[i][id_col]).strip()
+            matches = glob.glob(os.path.join(DATA_DIR, f"{file_id}*"))
+            if not matches:
+                matches = glob.glob(os.path.join("./data", f"{file_id}*"))
+            if matches:
+                thumb_uri = image_file_to_data_uri(matches[0])
+
+        # Strategy B: Fall back to direct image list if Strategy A failed
+        if not thumb_uri and i < len(fallback_images):
+            thumb_uri = image_file_to_data_uri(fallback_images[i])
+
         cases.append({
             "case_id": i,
-            "thumbnail": image_to_data_uri(X_test[i]),
+            "thumbnail": thumb_uri,
             "actual_label": actual,
             "classical": {
                 "prediction": c_pred,
-                "risk_score_pct": round((1 - float(classical_probs[i])) * 100, 1),
+                "risk_score_pct": round(float(classical_probs_pos[i]) * 100, 1),
             },
             "quantum": {
                 "prediction": q_pred,
-                "risk_score_pct": round((1 - float(quantum_probs[i])) * 100, 1),
+                "risk_score_pct": round(float(quantum_probs_pos[i]) * 100, 1),
             },
         })
 
+    # --- 6. Save to JSON ---
     output["imaging"] = {
-        "display_name": "Breast Ultrasound Screening (BreastMNIST)",
-        "framing": "Screening modality (pre-biopsy imaging) - earlier in the care pathway than the "
-                   "Wisconsin biopsy-derived tabular dataset.",
-        "is_real_data": is_real,
-        "engine": engine,
-        "evaluation": {"classical": classical_result, "quantum": quantum_result},
+        "display_name": "MIAS Mammography",
+        "framing": "Mammography image screening — direct comparison between Classical CNN/Swin vs Quantum-Hybrid (Swin + VQC)",
+        "is_real_data": True,
+        "engine": "Swin Transformer + PennyLane Quantum Hybrid",
+        "evaluation": {
+            "classical": {
+                "model": "Classical Ensemble (SVM+RF)",
+                "accuracy": classical_result["accuracy"],
+                "precision": classical_result["precision"],
+                "recall": classical_result["recall"],
+                "f1": classical_result["f1"],
+                "auc_roc": classical_result["auc_roc"],
+                "training_time_sec": classical_result["training_time_sec"]
+            },
+            "quantum": {
+                "model": "Quantum Hybrid Ensemble (QSVM+VQC)",
+                "accuracy": quantum_result["accuracy"],
+                "precision": quantum_result["precision"],
+                "recall": quantum_result["recall"],
+                "f1": quantum_result["f1"],
+                "auc_roc": quantum_result["auc_roc"],
+                "training_time_sec": quantum_result["training_time_sec"]
+            }
+        },
         "dataset_info": {
-            "name": "BreastMNIST (28x28 grayscale ultrasound)",
+            "name": "MIAS Mammography",
             "n_train": len(X_train),
             "n_test": len(X_test),
             "n_qubits": N_QUBITS,
@@ -207,7 +252,7 @@ def main():
 
     with open(RESULTS_PATH, "w") as f:
         json.dump(output, f, indent=2)
-    print(f"\nSaved imaging results ({n_cases} cases) to {RESULTS_PATH}")
+    print(f"\nSaved MIAS Swin-Quantum imaging results ({n_cases} cases) to {RESULTS_PATH}")
 
 
 if __name__ == "__main__":
