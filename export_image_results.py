@@ -1,6 +1,9 @@
 """
-Pre-computes results for the MIAS Mammography Swin-Quantum path and
-merges them into results.json under the "imaging" key for the dashboard.
+Pre-computes results for MIAS Mammography and merges into results.json under
+"imaging". Uses the SAME classical model (ClassicalEnsemble) and SAME quantum
+model (TabularQuantumEnsemble, with QGA feature selection + QPSO hyperparameter
+search) as export_results.py's heart disease path — Swin Transformer output is
+a 768-dim numeric vector, i.e. tabular data, so the identical pipeline applies.
 
 Run before demo: python export_image_results.py
 """
@@ -20,23 +23,24 @@ from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 )
 from sklearn.model_selection import train_test_split
-from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
-# Suppress sklearn future warnings regarding SVC probability
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-# Imports from your actual Swin/Quantum project files
-from image_pipeline import load_mias_dataset, QuantumSwinHybridEnsemble
+from image_pipeline import load_mias_dataset
 from classical_model import ClassicalEnsemble
+from tabular_quantum_model import (
+    qga_feature_selection, qpso_search_vqc_hyperparams, TabularQuantumEnsemble
+)
 
 RESULTS_PATH = "results.json"
 N_CASES_TO_SHOW = 8
-N_QUBITS = 4
+N_QUBITS = 6
+THRESHOLD = 0.35
 DATA_DIR = "./data/MIAS"
 
 
 def eval_metrics(name, y_true, preds, probs, fit_time):
-    # Ensure 1D probability array for positive class
     if isinstance(probs, np.ndarray) and probs.ndim == 2:
         probs = probs[:, 1] if probs.shape[1] > 1 else probs[:, 0]
 
@@ -52,7 +56,6 @@ def eval_metrics(name, y_true, preds, probs, fit_time):
 
 
 def image_file_to_data_uri(img_path, display_size=112):
-    """Converts a local MIAS mammogram file (.pgm/.png/.jpg) into a base64 URI for web dashboard rendering."""
     try:
         im = Image.open(img_path).convert("L").resize((display_size, display_size), Image.Resampling.NEAREST)
         buf = io.BytesIO()
@@ -64,7 +67,6 @@ def image_file_to_data_uri(img_path, display_size=112):
 
 
 def find_metadata_csv():
-    """Robust lookup for the MIAS metadata CSV across multiple directory structures."""
     possible_paths = [
         os.path.join("data", "mias_info.csv"),
         os.path.join(DATA_DIR, "mias_info.csv"),
@@ -79,17 +81,13 @@ def find_metadata_csv():
 
 
 def get_all_dataset_images():
-    """Scans dataset directories directly for image files as a fallback."""
     valid_exts = ("*.pgm", "*.png", "*.jpg", "*.jpeg", "*.PGM", "*.PNG", "*.JPG")
     found_images = []
     search_dirs = [DATA_DIR, "./data", "data/MIAS", "MIAS"]
-    
     for d in search_dirs:
         if os.path.exists(d):
             for ext in valid_exts:
                 found_images.extend(glob.glob(os.path.join(d, ext)))
-                
-    # Deduplicate and sort
     return sorted(list(set(found_images)))
 
 
@@ -103,63 +101,63 @@ def main():
 
     print("1. Loading MIAS dataset and extracting Swin Transformer embeddings...")
     X_swin, y = load_mias_dataset(data_dir=DATA_DIR)
+    swin_feature_names = [f"swin_dim_{i}" for i in range(X_swin.shape[1])]
 
-    # Dimensionality Reduction for Quantum Circuit
-    pca = PCA(n_components=N_QUBITS)
-    X_quantum = pca.fit_transform(X_swin)
-
-    # Train / Test split
     X_train, X_test, y_train, y_test = train_test_split(
         X_swin, y, test_size=0.2, random_state=42, stratify=y
     )
-    X_train_q, X_test_q, _, _ = train_test_split(
-        X_quantum, y, test_size=0.2, random_state=42, stratify=y
-    )
 
-    # --- 2. Train Classical Path ---
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # --- Classical Path (same ClassicalEnsemble used for heart disease) ---
     print("\n2. Training Classical Ensemble (Swin Features -> SVM + RF)...")
     t0 = time.time()
     classical_model = ClassicalEnsemble()
-    classical_model.fit(X_train, y_train)
+    classical_model.fit(X_train_scaled, y_train)
     classical_time = time.time() - t0
 
-    classical_probs = classical_model.predict_proba(X_test)
-    if classical_probs.ndim == 2:
-        classical_probs_pos = classical_probs[:, 1]
-    else:
-        classical_probs_pos = classical_probs
-    
-    # Lower threshold to 0.35 to catch positive malignant cases
-    classical_preds = (classical_probs_pos >= 0.35).astype(int)
+    classical_probs = classical_model.predict_proba(X_test_scaled)
+    classical_probs_pos = classical_probs[:, 1] if classical_probs.ndim == 2 else classical_probs
+    classical_preds = classical_model.predict(X_test_scaled, threshold=THRESHOLD)
 
-    # --- 3. Train Quantum Path ---
-    print("\n3. Training Quantum Hybrid Ensemble (Swin PCA -> QSVM + VQC)...")
+    # --- Quantum Path: QGA feature selection + QPSO hyperparameter search + QSVM+VQC ---
+    print("\n3. QGA-style feature selection (768 Swin dims -> 6 quantum features)...")
+    X_train_q, X_test_q, selected_names = qga_feature_selection(
+        X_train_scaled, X_test_scaled, y_train, swin_feature_names, n_components=N_QUBITS
+    )
+
+    print("4. QPSO-style hyperparameter search for VQC...")
+    best_params = qpso_search_vqc_hyperparams(X_train_q, y_train, N_QUBITS)
+
+    print("5. Training real QSVM + VQC with best-found hyperparameters...")
     t0 = time.time()
-    quantum_model = QuantumSwinHybridEnsemble(n_qubits=N_QUBITS, vqc_epochs=20)
+    quantum_model = TabularQuantumEnsemble(
+        n_qubits=N_QUBITS,
+        vqc_layers=best_params["vqc_layers"],
+        vqc_epochs=best_params["vqc_epochs"]
+    )
     quantum_model.fit(X_train_q, y_train)
     quantum_time = time.time() - t0
 
     quantum_probs = quantum_model.predict_proba(X_test_q)
-    if quantum_probs.ndim == 2:
-        quantum_probs_pos = quantum_probs[:, 1]
-    else:
-        quantum_probs_pos = quantum_probs
-    
-    # Predict using threshold = 0.35 to match class imbalance fix
-    quantum_preds = quantum_model.predict(X_test_q, threshold=0.35)
+    quantum_probs_pos = quantum_probs[:, 1] if quantum_probs.ndim == 2 else quantum_probs
+    quantum_preds = quantum_model.predict(X_test_q, threshold=THRESHOLD)
 
-    # --- 4. Evaluate Metrics ---
-    classical_result = eval_metrics("Classical Swin Ensemble", y_test, classical_preds, classical_probs_pos, classical_time)
-    quantum_result = eval_metrics("Quantum Swin Hybrid Ensemble", y_test, quantum_preds, quantum_probs_pos, quantum_time)
+    # --- Evaluate ---
+    classical_result = eval_metrics("Classical Ensemble (SVM+RF)", y_test, classical_preds, classical_probs_pos, classical_time)
+    quantum_result = eval_metrics("Quantum Ensemble (QGA+QPSO+QSVM+VQC)", y_test, quantum_preds, quantum_probs_pos, quantum_time)
 
     print(f"\nClassical Results: {classical_result}")
     print(f"Quantum Results:   {quantum_result}")
+    print(f"\n>>> MIAS Mammography: classical acc={classical_result['accuracy']:.3f}, "
+          f"quantum acc={quantum_result['accuracy']:.3f}\n")
 
-    # --- 5. Generate Test Case Thumbnails for Dashboard ---
+    # --- Thumbnails ---
     csv_path = find_metadata_csv()
     df = None
     id_col = None
-
     if csv_path:
         print(f"\nUsing metadata CSV for thumbnails: {csv_path}")
         try:
@@ -174,7 +172,6 @@ def main():
         except Exception as e:
             print(f"Could not parse CSV for thumbnails: {e}")
 
-    # Pre-fetch direct images as fallback
     fallback_images = get_all_dataset_images()
     print(f"Found {len(fallback_images)} image files in local directories.")
 
@@ -187,8 +184,6 @@ def main():
         q_pred = "Malignant" if quantum_preds[i] == 1 else "Benign/Normal"
 
         thumb_uri = ""
-
-        # Strategy A: Try metadata CSV ID lookup
         if df is not None and id_col in df.columns and i < len(df):
             file_id = str(df.iloc[i][id_col]).strip()
             matches = glob.glob(os.path.join(DATA_DIR, f"{file_id}*"))
@@ -197,7 +192,6 @@ def main():
             if matches:
                 thumb_uri = image_file_to_data_uri(matches[0])
 
-        # Strategy B: Fall back to direct image list if Strategy A failed
         if not thumb_uri and i < len(fallback_images):
             thumb_uri = image_file_to_data_uri(fallback_images[i])
 
@@ -215,44 +209,28 @@ def main():
             },
         })
 
-    # --- 6. Save to JSON ---
-    output["imaging"] = {
-        "display_name": "MIAS Mammography",
-        "framing": "Mammography image screening — direct comparison between Classical CNN/Swin vs Quantum-Hybrid (Swin + VQC)",
+    # --- Save under "datasets" (same shape/location as heart disease etc.) ---
+    output["datasets"]["mias_mammography"] = {
+        "display_name": "MIAS Mammography (Swin Transformer)",
+        "framing": "Mammography image screening, Swin embeddings treated as tabular "
+                   "features — same QGA+QPSO+QSVM+VQC pipeline as heart disease",
         "is_real_data": True,
-        "engine": "Swin Transformer + PennyLane Quantum Hybrid",
-        "evaluation": {
-            "classical": {
-                "model": "Classical Ensemble (SVM+RF)",
-                "accuracy": classical_result["accuracy"],
-                "precision": classical_result["precision"],
-                "recall": classical_result["recall"],
-                "f1": classical_result["f1"],
-                "auc_roc": classical_result["auc_roc"],
-                "training_time_sec": classical_result["training_time_sec"]
-            },
-            "quantum": {
-                "model": "Quantum Hybrid Ensemble (QSVM+VQC)",
-                "accuracy": quantum_result["accuracy"],
-                "precision": quantum_result["precision"],
-                "recall": quantum_result["recall"],
-                "f1": quantum_result["f1"],
-                "auc_roc": quantum_result["auc_roc"],
-                "training_time_sec": quantum_result["training_time_sec"]
-            }
-        },
+        "evaluation": {"classical": classical_result, "quantum": quantum_result},
         "dataset_info": {
             "name": "MIAS Mammography",
             "n_train": len(X_train),
             "n_test": len(X_test),
-            "n_qubits": N_QUBITS,
+            "n_features_classical": X_train_scaled.shape[1],
+            "n_features_quantum": N_QUBITS,
+            "qga_selected_features": selected_names,
+            "qpso_best_params": best_params,
         },
         "cases": cases,
     }
 
     with open(RESULTS_PATH, "w") as f:
         json.dump(output, f, indent=2)
-    print(f"\nSaved MIAS Swin-Quantum imaging results ({n_cases} cases) to {RESULTS_PATH}")
+    print(f"\nSaved MIAS results (unified QGA+QPSO pipeline, {n_cases} cases) to {RESULTS_PATH}")
 
 
 if __name__ == "__main__":
