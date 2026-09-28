@@ -1,5 +1,331 @@
 {
   "datasets": {
+    "wisconsin_breast_cancer": {
+      "display_name": "Wisconsin Breast Cancer (Diagnostic)",
+      "framing": "Diagnostic confirmation from digitized biopsy features (radius, texture, concavity, etc.) - post-biopsy classification, not early detection; included to show the hybrid pipeline benchmarked against a real, well-established, well-balanced clinical dataset",
+      "is_real_data": true,
+      "evaluation": {
+        "classical": {
+          "model": "Classical Ensemble (SVM+RF)",
+          "accuracy": 0.9912280701754386,
+          "precision": 1.0,
+          "recall": 0.9761904761904762,
+          "f1": 0.9879518072289156,
+          "auc_roc": 0.998015873015873,
+          "training_time_sec": 0.35
+        },
+        "quantum": {
+          "model": "Quantum Ensemble (QGA+QPSO+QSVM+VQC)",
+          "accuracy": 0.956140350877193,
+          "precision": 0.9302325581395349,
+          "recall": 0.9523809523809523,
+          "f1": 0.9411764705882353,
+          "auc_roc": 0.996031746031746,
+          "training_time_sec": 1.88
+        }
+      },
+      "dataset_info": {
+        "name": "Wisconsin Breast Cancer (Diagnostic)",
+        "n_train": 455,
+        "n_test": 114,
+        "n_features_classical": 30,
+        "n_features_quantum": 6,
+        "qga_selected_features": [
+          "mean perimeter",
+          "mean concave points",
+          "worst radius",
+          "worst perimeter",
+          "worst area",
+          "worst concave points"
+        ],
+        "qpso_best_params": {
+          "vqc_layers": 4,
+          "vqc_epochs": 20
+        }
+      },
+      "patients": [
+        {
+          "patient_id": 0,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 1.9,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "area error",
+                "impact": -0.1254
+              },
+              {
+                "feature": "worst texture",
+                "impact": -0.0737
+              },
+              {
+                "feature": "mean perimeter",
+                "impact": -0.0537
+              },
+              {
+                "feature": "worst concave points",
+                "impact": -0.0479
+              },
+              {
+                "feature": "mean compactness",
+                "impact": -0.0418
+              },
+              {
+                "feature": "mean texture",
+                "impact": -0.0368
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 14.1,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "worst radius",
+                "impact": -0.121
+              },
+              {
+                "feature": "mean perimeter",
+                "impact": -0.1095
+              },
+              {
+                "feature": "worst concave points",
+                "impact": -0.0977
+              },
+              {
+                "feature": "mean concave points",
+                "impact": -0.072
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 1,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 98.6,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "radius error",
+                "impact": 0.1384
+              },
+              {
+                "feature": "texture error",
+                "impact": 0.1096
+              },
+              {
+                "feature": "mean concave points",
+                "impact": 0.051
+              },
+              {
+                "feature": "perimeter error",
+                "impact": 0.0475
+              },
+              {
+                "feature": "worst texture",
+                "impact": 0.0393
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": 0.0392
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 91.1,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "mean concave points",
+                "impact": 0.0974
+              },
+              {
+                "feature": "worst radius",
+                "impact": 0.0795
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": 0.0738
+              },
+              {
+                "feature": "worst concave points",
+                "impact": 0.0594
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 2,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 11.2,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "worst texture",
+                "impact": -0.0875
+              },
+              {
+                "feature": "worst area",
+                "impact": -0.0799
+              },
+              {
+                "feature": "mean concave points",
+                "impact": -0.0555
+              },
+              {
+                "feature": "worst concave points",
+                "impact": -0.05
+              },
+              {
+                "feature": "worst radius",
+                "impact": -0.0239
+              },
+              {
+                "feature": "mean perimeter",
+                "impact": -0.0222
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 64.3,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "worst perimeter",
+                "impact": 0.0207
+              },
+              {
+                "feature": "worst radius",
+                "impact": 0.0183
+              },
+              {
+                "feature": "mean perimeter",
+                "impact": 0.0051
+              },
+              {
+                "feature": "mean concave points",
+                "impact": -0.0047
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 3,
+          "actual_label": "Positive/High-risk",
+          "classical": {
+            "risk_score_pct": 80.5,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "worst texture",
+                "impact": 0.0725
+              },
+              {
+                "feature": "worst concave points",
+                "impact": 0.0705
+              },
+              {
+                "feature": "mean concave points",
+                "impact": 0.0459
+              },
+              {
+                "feature": "worst area",
+                "impact": 0.0456
+              },
+              {
+                "feature": "compactness error",
+                "impact": 0.0297
+              },
+              {
+                "feature": "mean smoothness",
+                "impact": 0.0277
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 68.3,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "worst concave points",
+                "impact": 0.046
+              },
+              {
+                "feature": "mean concave points",
+                "impact": 0.0245
+              },
+              {
+                "feature": "worst area",
+                "impact": -0.0154
+              },
+              {
+                "feature": "mean perimeter",
+                "impact": 0.0138
+              }
+            ]
+          }
+        },
+        {
+          "patient_id": 4,
+          "actual_label": "Negative/Low-risk",
+          "classical": {
+            "risk_score_pct": 4.1,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "worst concave points",
+                "impact": -0.0734
+              },
+              {
+                "feature": "area error",
+                "impact": -0.0572
+              },
+              {
+                "feature": "perimeter error",
+                "impact": -0.0451
+              },
+              {
+                "feature": "mean radius",
+                "impact": -0.0448
+              },
+              {
+                "feature": "worst area",
+                "impact": -0.0415
+              },
+              {
+                "feature": "mean concavity",
+                "impact": -0.038
+              }
+            ]
+          },
+          "quantum": {
+            "risk_score_pct": 17.1,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "worst radius",
+                "impact": -0.1436
+              },
+              {
+                "feature": "worst perimeter",
+                "impact": -0.1163
+              },
+              {
+                "feature": "worst concave points",
+                "impact": -0.1151
+              },
+              {
+                "feature": "worst area",
+                "impact": -0.0282
+              }
+            ]
+          }
+        }
+      ]
+    },
     "heart_disease": {
       "display_name": "Heart Disease (UCI Cleveland)",
       "framing": "Coronary heart disease risk from standard clinical features (chest pain type, resting BP, cholesterol, ST depression, etc.) \u2014 primary target condition, using QGA-style feature selection + QPSO-style hyperparameter search + real QSVM+VQC",
@@ -7,21 +333,21 @@
       "evaluation": {
         "classical": {
           "model": "Classical Ensemble (SVM+RF)",
-          "accuracy": 0.819672131147541,
-          "precision": 0.7619047619047619,
-          "recall": 0.9696969696969697,
-          "f1": 0.8533333333333334,
+          "accuracy": 0.8360655737704918,
+          "precision": 0.8108108108108109,
+          "recall": 0.9090909090909091,
+          "f1": 0.8571428571428571,
           "auc_roc": 0.9036796536796536,
-          "training_time_sec": 0.46
+          "training_time_sec": 0.35
         },
         "quantum": {
           "model": "Quantum Ensemble (QGA+QPSO+QSVM+VQC)",
-          "accuracy": 0.5409836065573771,
-          "precision": 0.5409836065573771,
-          "recall": 1.0,
-          "f1": 0.7021276595744681,
-          "auc_roc": 0.7792207792207791,
-          "training_time_sec": 29.25
+          "accuracy": 0.8032786885245902,
+          "precision": 0.7692307692307693,
+          "recall": 0.9090909090909091,
+          "f1": 0.8333333333333334,
+          "auc_roc": 0.8841991341991342,
+          "training_time_sec": 3.45
         }
       },
       "dataset_info": {
@@ -39,8 +365,8 @@
           "thal"
         ],
         "qpso_best_params": {
-          "vqc_layers": 2,
-          "vqc_epochs": 20
+          "vqc_layers": 4,
+          "vqc_epochs": 30
         }
       },
       "patients": [
@@ -53,49 +379,49 @@
             "top_features": [
               {
                 "feature": "thalach",
-                "impact": -0.12
+                "impact": -0.1178
               },
               {
                 "feature": "cp",
-                "impact": -0.0988
+                "impact": -0.1159
               },
               {
                 "feature": "exang",
-                "impact": -0.0781
+                "impact": -0.0999
               },
               {
                 "feature": "ca",
-                "impact": -0.0686
+                "impact": -0.0688
               },
               {
-                "feature": "restecg",
-                "impact": -0.0455
+                "feature": "chol",
+                "impact": -0.0351
               },
               {
-                "feature": "thal",
-                "impact": 0.035
+                "feature": "slope",
+                "impact": -0.0285
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 50.6,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 21.9,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "oldpeak",
-                "impact": 0.0125
-              },
-              {
-                "feature": "thalach",
-                "impact": -0.004
-              },
-              {
                 "feature": "exang",
-                "impact": -0.0033
+                "impact": -0.2374
               },
               {
                 "feature": "thal",
-                "impact": -0.002
+                "impact": 0.1315
+              },
+              {
+                "feature": "cp",
+                "impact": -0.1115
+              },
+              {
+                "feature": "thalach",
+                "impact": -0.0476
               }
             ]
           }
@@ -109,49 +435,49 @@
             "top_features": [
               {
                 "feature": "cp",
-                "impact": -0.1992
+                "impact": -0.2001
               },
               {
                 "feature": "ca",
-                "impact": -0.1445
+                "impact": -0.1503
               },
               {
                 "feature": "oldpeak",
-                "impact": 0.0981
+                "impact": 0.0867
               },
               {
                 "feature": "thal",
-                "impact": -0.0901
+                "impact": -0.0821
               },
               {
                 "feature": "fbs",
-                "impact": 0.0565
+                "impact": 0.0443
               },
               {
                 "feature": "restecg",
-                "impact": 0.0379
+                "impact": 0.036
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 44.1,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 20.9,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "ca",
-                "impact": -0.0665
+                "feature": "cp",
+                "impact": -0.1523
               },
               {
-                "feature": "oldpeak",
-                "impact": 0.0479
+                "feature": "ca",
+                "impact": -0.0788
               },
               {
                 "feature": "thal",
-                "impact": -0.0372
+                "impact": -0.0762
               },
               {
-                "feature": "cp",
-                "impact": -0.0095
+                "feature": "exang",
+                "impact": 0.0342
               }
             ]
           }
@@ -164,50 +490,50 @@
             "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "exang",
-                "impact": -0.1061
-              },
-              {
-                "feature": "ca",
-                "impact": -0.1025
+                "feature": "thal",
+                "impact": -0.1046
               },
               {
                 "feature": "cp",
-                "impact": -0.0927
+                "impact": -0.1036
               },
               {
                 "feature": "thalach",
-                "impact": -0.0874
+                "impact": -0.0655
               },
               {
-                "feature": "thal",
-                "impact": -0.0676
+                "feature": "exang",
+                "impact": -0.0613
               },
               {
-                "feature": "sex",
-                "impact": -0.0257
+                "feature": "oldpeak",
+                "impact": -0.0556
+              },
+              {
+                "feature": "ca",
+                "impact": -0.0434
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 45.6,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 6.5,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "ca",
-                "impact": -0.0625
-              },
-              {
-                "feature": "thalach",
-                "impact": -0.0551
-              },
-              {
-                "feature": "oldpeak",
-                "impact": 0.0389
+                "feature": "exang",
+                "impact": -0.1541
               },
               {
                 "feature": "cp",
-                "impact": 0.0225
+                "impact": -0.1147
+              },
+              {
+                "feature": "thal",
+                "impact": -0.0738
+              },
+              {
+                "feature": "ca",
+                "impact": -0.0708
               }
             ]
           }
@@ -221,49 +547,49 @@
             "top_features": [
               {
                 "feature": "oldpeak",
-                "impact": -0.134
+                "impact": -0.1322
               },
               {
                 "feature": "ca",
-                "impact": 0.1249
+                "impact": 0.1246
               },
               {
                 "feature": "cp",
-                "impact": 0.1141
-              },
-              {
-                "feature": "chol",
-                "impact": 0.0915
+                "impact": 0.108
               },
               {
                 "feature": "thal",
-                "impact": 0.0852
+                "impact": 0.0893
               },
               {
-                "feature": "sex",
-                "impact": -0.0341
+                "feature": "chol",
+                "impact": 0.079
+              },
+              {
+                "feature": "thalach",
+                "impact": 0.0358
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 74.2,
+            "risk_score_pct": 80.1,
             "prediction": "Positive/High-risk",
             "top_features": [
               {
-                "feature": "ca",
-                "impact": 0.0994
-              },
-              {
-                "feature": "thal",
-                "impact": 0.0748
-              },
-              {
                 "feature": "cp",
-                "impact": 0.042
+                "impact": 0.2002
+              },
+              {
+                "feature": "ca",
+                "impact": 0.1394
               },
               {
                 "feature": "oldpeak",
-                "impact": 0.0254
+                "impact": -0.0916
+              },
+              {
+                "feature": "exang",
+                "impact": 0.0476
               }
             ]
           }
@@ -277,49 +603,49 @@
             "top_features": [
               {
                 "feature": "cp",
-                "impact": 0.1423
-              },
-              {
-                "feature": "thal",
-                "impact": -0.1058
+                "impact": 0.1368
               },
               {
                 "feature": "oldpeak",
-                "impact": 0.0993
+                "impact": 0.1006
               },
               {
-                "feature": "ca",
-                "impact": -0.0554
+                "feature": "thal",
+                "impact": -0.1
               },
               {
                 "feature": "thalach",
-                "impact": 0.0511
+                "impact": 0.0946
+              },
+              {
+                "feature": "ca",
+                "impact": -0.0609
               },
               {
                 "feature": "restecg",
-                "impact": 0.034
+                "impact": 0.0399
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 46.1,
+            "risk_score_pct": 78.2,
             "prediction": "Positive/High-risk",
             "top_features": [
               {
-                "feature": "thal",
-                "impact": -0.0577
+                "feature": "cp",
+                "impact": 0.2569
               },
               {
                 "feature": "exang",
-                "impact": 0.0053
+                "impact": 0.0914
               },
               {
-                "feature": "thalach",
-                "impact": 0.0053
+                "feature": "thal",
+                "impact": -0.0876
               },
               {
-                "feature": "cp",
-                "impact": 0.0051
+                "feature": "oldpeak",
+                "impact": 0.0351
               }
             ]
           }
@@ -328,367 +654,41 @@
     },
     "diabetes": {
       "display_name": "Pima Diabetes (Early Risk Screening)",
-      "framing": "Genuinely early/pre-diagnosis - glucose, BMI, age, family history risk factors",
-      "is_real_data": false,
+      "framing": "Early/pre-diagnosis risk screening - glucose, BMI, age, family history risk factors (real Pima data)",
+      "is_real_data": true,
       "evaluation": {
         "classical": {
           "model": "Classical Ensemble (SVM+RF)",
-          "accuracy": 0.95,
-          "precision": 0.9444444444444444,
-          "recall": 1.0,
-          "f1": 0.9714285714285714,
-          "auc_roc": 0.9825708061002179,
-          "training_time_sec": 0.23
+          "accuracy": 0.7662337662337663,
+          "precision": 0.6730769230769231,
+          "recall": 0.6481481481481481,
+          "f1": 0.660377358490566,
+          "auc_roc": 0.826851851851852,
+          "training_time_sec": 0.4
         },
         "quantum": {
           "model": "Quantum Ensemble (QGA+QPSO+QSVM+VQC)",
-          "accuracy": 0.85,
-          "precision": 0.85,
-          "recall": 1.0,
-          "f1": 0.918918918918919,
-          "auc_roc": 0.8845315904139434,
-          "training_time_sec": 15.1
+          "accuracy": 0.7272727272727273,
+          "precision": 0.59375,
+          "recall": 0.7037037037037037,
+          "f1": 0.6440677966101694,
+          "auc_roc": 0.8062962962962964,
+          "training_time_sec": 3.65
         }
       },
       "dataset_info": {
         "name": "Pima Diabetes (Early Risk Screening)",
-        "n_train": 240,
-        "n_test": 60,
-        "n_features_classical": 6,
+        "n_train": 614,
+        "n_test": 154,
+        "n_features_classical": 8,
         "n_features_quantum": 6,
         "qga_selected_features": [
+          "Pregnancies",
           "Glucose",
-          "BMI",
-          "Age",
-          "BloodPressure",
+          "SkinThickness",
           "Insulin",
-          "DiabetesPedigree"
-        ],
-        "qpso_best_params": {
-          "vqc_layers": 3,
-          "vqc_epochs": 30
-        }
-      },
-      "patients": [
-        {
-          "patient_id": 0,
-          "actual_label": "Positive/High-risk",
-          "classical": {
-            "risk_score_pct": 95.5,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "BMI",
-                "impact": 0.1223
-              },
-              {
-                "feature": "Glucose",
-                "impact": -0.0183
-              },
-              {
-                "feature": "Age",
-                "impact": -0.0174
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": 0.0172
-              },
-              {
-                "feature": "Insulin",
-                "impact": -0.0076
-              },
-              {
-                "feature": "DiabetesPedigree",
-                "impact": -0.0047
-              }
-            ]
-          },
-          "quantum": {
-            "risk_score_pct": 62.8,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "Insulin",
-                "impact": -0.0757
-              },
-              {
-                "feature": "Glucose",
-                "impact": -0.0748
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": -0.0536
-              },
-              {
-                "feature": "Age",
-                "impact": -0.0126
-              }
-            ]
-          }
-        },
-        {
-          "patient_id": 1,
-          "actual_label": "Negative/Low-risk",
-          "classical": {
-            "risk_score_pct": 9.3,
-            "prediction": "Negative/Low-risk",
-            "top_features": [
-              {
-                "feature": "Glucose",
-                "impact": -0.7887
-              },
-              {
-                "feature": "Age",
-                "impact": 0.0197
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": -0.0147
-              },
-              {
-                "feature": "BMI",
-                "impact": 0.0118
-              },
-              {
-                "feature": "Insulin",
-                "impact": 0.0057
-              },
-              {
-                "feature": "DiabetesPedigree",
-                "impact": -0.0039
-              }
-            ]
-          },
-          "quantum": {
-            "risk_score_pct": 73.5,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "Glucose",
-                "impact": -0.2156
-              },
-              {
-                "feature": "Insulin",
-                "impact": 0.0885
-              },
-              {
-                "feature": "BMI",
-                "impact": 0.0444
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": -0.0183
-              }
-            ]
-          }
-        },
-        {
-          "patient_id": 2,
-          "actual_label": "Negative/Low-risk",
-          "classical": {
-            "risk_score_pct": 57.9,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "Glucose",
-                "impact": -0.6642
-              },
-              {
-                "feature": "Age",
-                "impact": 0.1736
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": 0.1254
-              },
-              {
-                "feature": "BMI",
-                "impact": 0.0814
-              },
-              {
-                "feature": "DiabetesPedigree",
-                "impact": -0.0238
-              },
-              {
-                "feature": "Insulin",
-                "impact": 0.0234
-              }
-            ]
-          },
-          "quantum": {
-            "risk_score_pct": 60.5,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "Glucose",
-                "impact": -0.2111
-              },
-              {
-                "feature": "BMI",
-                "impact": 0.0699
-              },
-              {
-                "feature": "Age",
-                "impact": -0.0675
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": -0.029
-              }
-            ]
-          }
-        },
-        {
-          "patient_id": 3,
-          "actual_label": "Negative/Low-risk",
-          "classical": {
-            "risk_score_pct": 26.2,
-            "prediction": "Negative/Low-risk",
-            "top_features": [
-              {
-                "feature": "Glucose",
-                "impact": -0.4756
-              },
-              {
-                "feature": "BMI",
-                "impact": -0.2039
-              },
-              {
-                "feature": "Age",
-                "impact": 0.0553
-              },
-              {
-                "feature": "Insulin",
-                "impact": 0.0292
-              },
-              {
-                "feature": "DiabetesPedigree",
-                "impact": -0.0172
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": 0.0103
-              }
-            ]
-          },
-          "quantum": {
-            "risk_score_pct": 67.8,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "BMI",
-                "impact": -0.1919
-              },
-              {
-                "feature": "Insulin",
-                "impact": 0.129
-              },
-              {
-                "feature": "Glucose",
-                "impact": -0.0977
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": 0.0232
-              }
-            ]
-          }
-        },
-        {
-          "patient_id": 4,
-          "actual_label": "Positive/High-risk",
-          "classical": {
-            "risk_score_pct": 97.1,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "Glucose",
-                "impact": 0.1507
-              },
-              {
-                "feature": "BMI",
-                "impact": -0.0514
-              },
-              {
-                "feature": "Age",
-                "impact": 0.0075
-              },
-              {
-                "feature": "Insulin",
-                "impact": -0.007
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": 0.0056
-              },
-              {
-                "feature": "DiabetesPedigree",
-                "impact": 0.0023
-              }
-            ]
-          },
-          "quantum": {
-            "risk_score_pct": 70.4,
-            "prediction": "Positive/High-risk",
-            "top_features": [
-              {
-                "feature": "BMI",
-                "impact": -0.1836
-              },
-              {
-                "feature": "Glucose",
-                "impact": 0.0592
-              },
-              {
-                "feature": "DiabetesPedigree",
-                "impact": -0.0233
-              },
-              {
-                "feature": "BloodPressure",
-                "impact": 0.0088
-              }
-            ]
-          }
-        }
-      ]
-    },
-    "genomics": {
-      "display_name": "Leukemia Gene Expression (Genomics)",
-      "framing": "High-dimensional genomics data - illustrates classical ML's curse-of-dimensionality challenge",
-      "is_real_data": false,
-      "evaluation": {
-        "classical": {
-          "model": "Classical Ensemble (SVM+RF)",
-          "accuracy": 0.625,
-          "precision": 0.6,
-          "recall": 0.9230769230769231,
-          "f1": 0.7272727272727273,
-          "auc_roc": 0.7622377622377623,
-          "training_time_sec": 0.26
-        },
-        "quantum": {
-          "model": "Quantum Ensemble (QGA+QPSO+QSVM+VQC)",
-          "accuracy": 0.5833333333333334,
-          "precision": 0.5652173913043478,
-          "recall": 1.0,
-          "f1": 0.7222222222222222,
-          "auc_roc": 0.7202797202797203,
-          "training_time_sec": 16.32
-        }
-      },
-      "dataset_info": {
-        "name": "Leukemia Gene Expression (Genomics)",
-        "n_train": 96,
-        "n_test": 24,
-        "n_features_classical": 200,
-        "n_features_quantum": 6,
-        "qga_selected_features": [
-          "Gene_2",
-          "Gene_3",
-          "Gene_4",
-          "Gene_5",
-          "Gene_6",
-          "Gene_138"
+          "BMI",
+          "Age"
         ],
         "qpso_best_params": {
           "vqc_layers": 4,
@@ -698,224 +698,224 @@
       "patients": [
         {
           "patient_id": 0,
-          "actual_label": "Positive/High-risk",
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "risk_score_pct": 54.4,
+            "risk_score_pct": 84.4,
             "prediction": "Positive/High-risk",
             "top_features": [
               {
-                "feature": "Gene_139",
-                "impact": -0.0665
+                "feature": "Glucose",
+                "impact": 0.3422
               },
               {
-                "feature": "Gene_28",
-                "impact": 0.0409
+                "feature": "BMI",
+                "impact": -0.0943
               },
               {
-                "feature": "Gene_64",
-                "impact": -0.0382
+                "feature": "Age",
+                "impact": 0.0656
               },
               {
-                "feature": "Gene_88",
-                "impact": 0.0234
+                "feature": "Pregnancies",
+                "impact": 0.0516
               },
               {
-                "feature": "Gene_80",
-                "impact": 0.0174
+                "feature": "DiabetesPedigree",
+                "impact": -0.0427
               },
               {
-                "feature": "Gene_3",
-                "impact": -0.0169
+                "feature": "Insulin",
+                "impact": 0.0307
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 72.1,
+            "risk_score_pct": 75.1,
             "prediction": "Positive/High-risk",
             "top_features": [
               {
-                "feature": "Gene_3",
-                "impact": 0.1616
+                "feature": "Glucose",
+                "impact": 0.2074
               },
               {
-                "feature": "Gene_6",
-                "impact": -0.1455
+                "feature": "Pregnancies",
+                "impact": 0.0236
               },
               {
-                "feature": "Gene_2",
-                "impact": 0.1383
+                "feature": "Age",
+                "impact": 0.0231
               },
               {
-                "feature": "Gene_5",
-                "impact": -0.0508
+                "feature": "Insulin",
+                "impact": 0.0073
               }
             ]
           }
         },
         {
           "patient_id": 1,
-          "actual_label": "Positive/High-risk",
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "risk_score_pct": 69.7,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 3.9,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_12",
-                "impact": -0.0801
+                "feature": "Glucose",
+                "impact": -0.3243
               },
               {
-                "feature": "Gene_22",
-                "impact": 0.0748
+                "feature": "Insulin",
+                "impact": -0.2075
               },
               {
-                "feature": "Gene_77",
-                "impact": -0.0694
+                "feature": "Pregnancies",
+                "impact": 0.0581
               },
               {
-                "feature": "Gene_55",
-                "impact": 0.0673
+                "feature": "DiabetesPedigree",
+                "impact": -0.0561
               },
               {
-                "feature": "Gene_164",
-                "impact": 0.0565
+                "feature": "Age",
+                "impact": 0.0359
               },
               {
-                "feature": "Gene_3",
-                "impact": 0.0534
+                "feature": "BloodPressure",
+                "impact": 0.0164
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 79.3,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 20.4,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_5",
-                "impact": 0.112
+                "feature": "Glucose",
+                "impact": -0.3522
               },
               {
-                "feature": "Gene_2",
-                "impact": 0.0895
+                "feature": "Pregnancies",
+                "impact": 0.0552
               },
               {
-                "feature": "Gene_4",
-                "impact": -0.0314
+                "feature": "Insulin",
+                "impact": -0.0286
               },
               {
-                "feature": "Gene_6",
-                "impact": 0.0134
+                "feature": "Age",
+                "impact": 0.0241
               }
             ]
           }
         },
         {
           "patient_id": 2,
-          "actual_label": "Positive/High-risk",
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "risk_score_pct": 70.3,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 2.2,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_188",
-                "impact": 0.0883
+                "feature": "Glucose",
+                "impact": -0.285
               },
               {
-                "feature": "Gene_193",
-                "impact": -0.0691
+                "feature": "Age",
+                "impact": -0.1604
               },
               {
-                "feature": "Gene_3",
-                "impact": -0.0387
+                "feature": "Pregnancies",
+                "impact": -0.0214
               },
               {
-                "feature": "Gene_112",
-                "impact": 0.0331
+                "feature": "SkinThickness",
+                "impact": -0.0187
               },
               {
-                "feature": "Gene_140",
-                "impact": 0.0257
+                "feature": "DiabetesPedigree",
+                "impact": -0.0074
               },
               {
-                "feature": "Gene_82",
-                "impact": 0.024
+                "feature": "BMI",
+                "impact": -0.0047
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 65.3,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 38.0,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_5",
-                "impact": 0.0746
+                "feature": "Glucose",
+                "impact": -0.0567
               },
               {
-                "feature": "Gene_2",
-                "impact": -0.0658
+                "feature": "Pregnancies",
+                "impact": -0.0448
               },
               {
-                "feature": "Gene_138",
-                "impact": 0.0205
+                "feature": "Age",
+                "impact": -0.0414
               },
               {
-                "feature": "Gene_6",
-                "impact": 0.0179
+                "feature": "BMI",
+                "impact": 0.0224
               }
             ]
           }
         },
         {
           "patient_id": 3,
-          "actual_label": "Negative/Low-risk",
+          "actual_label": "Positive/High-risk",
           "classical": {
-            "risk_score_pct": 36.5,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 18.2,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_34",
-                "impact": -0.0579
+                "feature": "BMI",
+                "impact": -0.2517
               },
               {
-                "feature": "Gene_151",
-                "impact": -0.0483
+                "feature": "Glucose",
+                "impact": -0.1405
               },
               {
-                "feature": "Gene_89",
-                "impact": -0.0482
+                "feature": "Pregnancies",
+                "impact": 0.0725
               },
               {
-                "feature": "Gene_162",
-                "impact": -0.0171
+                "feature": "SkinThickness",
+                "impact": -0.037
               },
               {
-                "feature": "Gene_78",
-                "impact": -0.0151
+                "feature": "Age",
+                "impact": 0.0239
               },
               {
-                "feature": "Gene_19",
-                "impact": -0.0144
+                "feature": "BloodPressure",
+                "impact": -0.0213
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 55.4,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 40.9,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_5",
-                "impact": -0.1184
+                "feature": "Glucose",
+                "impact": -0.114
               },
               {
-                "feature": "Gene_6",
-                "impact": 0.057
+                "feature": "Insulin",
+                "impact": 0.0688
               },
               {
-                "feature": "Gene_4",
-                "impact": -0.0431
+                "feature": "BMI",
+                "impact": -0.0494
               },
               {
-                "feature": "Gene_2",
-                "impact": 0.0353
+                "feature": "Age",
+                "impact": 0.0095
               }
             ]
           }
@@ -924,206 +924,382 @@
           "patient_id": 4,
           "actual_label": "Negative/Low-risk",
           "classical": {
-            "risk_score_pct": 38.0,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 1.3,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_4",
-                "impact": -0.0899
+                "feature": "Glucose",
+                "impact": -0.3745
               },
               {
-                "feature": "Gene_133",
-                "impact": -0.0536
+                "feature": "DiabetesPedigree",
+                "impact": -0.0683
               },
               {
-                "feature": "Gene_108",
-                "impact": -0.027
+                "feature": "Age",
+                "impact": -0.057
               },
               {
-                "feature": "Gene_30",
-                "impact": 0.0206
+                "feature": "Pregnancies",
+                "impact": -0.0093
               },
               {
-                "feature": "Gene_166",
-                "impact": -0.02
+                "feature": "BMI",
+                "impact": 0.0091
               },
               {
-                "feature": "Gene_42",
-                "impact": -0.015
+                "feature": "SkinThickness",
+                "impact": -0.0073
               }
             ]
           },
           "quantum": {
-            "risk_score_pct": 71.6,
-            "prediction": "Positive/High-risk",
+            "risk_score_pct": 9.7,
+            "prediction": "Negative/Low-risk",
             "top_features": [
               {
-                "feature": "Gene_3",
-                "impact": 0.0934
+                "feature": "Glucose",
+                "impact": -0.3433
               },
               {
-                "feature": "Gene_5",
-                "impact": 0.0504
+                "feature": "Age",
+                "impact": -0.0282
               },
               {
-                "feature": "Gene_6",
-                "impact": -0.035
+                "feature": "Pregnancies",
+                "impact": -0.0232
               },
               {
-                "feature": "Gene_138",
-                "impact": 0.0131
+                "feature": "BMI",
+                "impact": -0.0025
               }
             ]
           }
         }
       ]
     },
-    "mias_mammography": {
-      "display_name": "MIAS Mammography (Swin Transformer)",
-      "framing": "Mammography image screening, Swin embeddings treated as tabular features \u2014 same QGA+QPSO+QSVM+VQC pipeline as heart disease",
+    "genomics": {
+      "display_name": "Leukemia Gene Expression (Genomics)",
+      "framing": "High-dimensional genomics data - illustrates classical ML's curse-of-dimensionality challenge",
       "is_real_data": true,
       "evaluation": {
         "classical": {
           "model": "Classical Ensemble (SVM+RF)",
-          "accuracy": 0.8181818181818182,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "auc_roc": 0.4925619834710744,
-          "training_time_sec": 0.4
+          "accuracy": 0.9333333333333333,
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.8888888888888888,
+          "auc_roc": 0.9600000000000001,
+          "training_time_sec": 0.35
         },
         "quantum": {
           "model": "Quantum Ensemble (QGA+QPSO+QSVM+VQC)",
-          "accuracy": 0.5757575757575758,
-          "precision": 0.09523809523809523,
-          "recall": 0.18181818181818182,
-          "f1": 0.125,
-          "auc_roc": 0.5371900826446281,
-          "training_time_sec": 10.4
+          "accuracy": 0.9333333333333333,
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1": 0.8888888888888888,
+          "auc_roc": 0.9600000000000001,
+          "training_time_sec": 1.56
         }
       },
       "dataset_info": {
-        "name": "MIAS Mammography",
-        "n_train": 264,
-        "n_test": 66,
-        "n_features_classical": 768,
+        "name": "Leukemia Gene Expression (Genomics)",
+        "n_train": 57,
+        "n_test": 15,
+        "n_features_classical": 7129,
         "n_features_quantum": 6,
         "qga_selected_features": [
-          "swin_dim_12",
-          "swin_dim_164",
-          "swin_dim_187",
-          "swin_dim_206",
-          "swin_dim_335",
-          "swin_dim_522"
+          "M22960_at",
+          "M55150_at",
+          "M63138_at",
+          "U50136_rna1_at",
+          "X17042_at",
+          "X95735_at"
         ],
         "qpso_best_params": {
-          "vqc_layers": 3,
-          "vqc_epochs": 30
+          "vqc_layers": 4,
+          "vqc_epochs": 20
         }
       },
-      "cases": [
+      "patients": [
         {
-          "case_id": 0,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Benign/Normal",
+          "patient_id": 0,
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "prediction": "Malignant",
-            "risk_score_pct": 60.7
+            "risk_score_pct": 8.3,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "AFFX-BioDn-5_at",
+                "impact": -0.1183
+              },
+              {
+                "feature": "AD000684_cds1_at",
+                "impact": -0.1183
+              },
+              {
+                "feature": "HG1604-HT1604_at",
+                "impact": -0.1111
+              },
+              {
+                "feature": "M81757_at",
+                "impact": 0.1089
+              },
+              {
+                "feature": "D88422_at",
+                "impact": -0.0016
+              },
+              {
+                "feature": "U48730_at",
+                "impact": 0.0
+              }
+            ]
           },
           "quantum": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 30.4
+            "risk_score_pct": 11.2,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "U50136_rna1_at",
+                "impact": -0.1514
+              },
+              {
+                "feature": "X17042_at",
+                "impact": -0.1493
+              },
+              {
+                "feature": "M55150_at",
+                "impact": -0.094
+              },
+              {
+                "feature": "X95735_at",
+                "impact": -0.0515
+              }
+            ]
           }
         },
         {
-          "case_id": 1,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Benign/Normal",
+          "patient_id": 1,
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 30.1
+            "risk_score_pct": 11.3,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "AFFX-BioB-M_at",
+                "impact": -0.1657
+              },
+              {
+                "feature": "D13789_at",
+                "impact": -0.0172
+              },
+              {
+                "feature": "AC002086_at",
+                "impact": -0.0172
+              },
+              {
+                "feature": "D14446_at",
+                "impact": -0.0062
+              },
+              {
+                "feature": "HG3123-HT3299_at",
+                "impact": -0.0019
+              },
+              {
+                "feature": "D86640_at",
+                "impact": -0.0019
+              }
+            ]
           },
           "quantum": {
-            "prediction": "Malignant",
-            "risk_score_pct": 36.6
+            "risk_score_pct": 10.8,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "X17042_at",
+                "impact": -0.1831
+              },
+              {
+                "feature": "U50136_rna1_at",
+                "impact": -0.1047
+              },
+              {
+                "feature": "X95735_at",
+                "impact": -0.0816
+              },
+              {
+                "feature": "M55150_at",
+                "impact": -0.0594
+              }
+            ]
           }
         },
         {
-          "case_id": 2,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Malignant",
+          "patient_id": 2,
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 7.0
+            "risk_score_pct": 41.3,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "U35459_at",
+                "impact": 0.0376
+              },
+              {
+                "feature": "X14346_at",
+                "impact": 0.0368
+              },
+              {
+                "feature": "X69433_at",
+                "impact": 0.0218
+              },
+              {
+                "feature": "U61262_at",
+                "impact": 0.017
+              },
+              {
+                "feature": "D83657_at",
+                "impact": -0.0164
+              },
+              {
+                "feature": "D63135_at",
+                "impact": -0.0151
+              }
+            ]
           },
           "quantum": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 31.0
+            "risk_score_pct": 10.3,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "M55150_at",
+                "impact": -0.1514
+              },
+              {
+                "feature": "X17042_at",
+                "impact": -0.1109
+              },
+              {
+                "feature": "U50136_rna1_at",
+                "impact": -0.0984
+              },
+              {
+                "feature": "M63138_at",
+                "impact": -0.0659
+              }
+            ]
           }
         },
         {
-          "case_id": 3,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Benign/Normal",
+          "patient_id": 3,
+          "actual_label": "Negative/Low-risk",
           "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 5.1
+            "risk_score_pct": 14.7,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "M19720_rna2_at",
+                "impact": -0.1305
+              },
+              {
+                "feature": "AFFX-BioC-5_st",
+                "impact": -0.0212
+              },
+              {
+                "feature": "AFFX-BioDn-5_st",
+                "impact": -0.0212
+              },
+              {
+                "feature": "U36621_cds2_at",
+                "impact": -0.0014
+              },
+              {
+                "feature": "D29677_at",
+                "impact": -0.0005
+              },
+              {
+                "feature": "X13973_at",
+                "impact": -0.0005
+              }
+            ]
           },
           "quantum": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 11.5
+            "risk_score_pct": 12.4,
+            "prediction": "Negative/Low-risk",
+            "top_features": [
+              {
+                "feature": "X17042_at",
+                "impact": -0.1416
+              },
+              {
+                "feature": "U50136_rna1_at",
+                "impact": -0.1286
+              },
+              {
+                "feature": "X95735_at",
+                "impact": -0.0883
+              },
+              {
+                "feature": "M63138_at",
+                "impact": -0.0709
+              }
+            ]
           }
         },
         {
-          "case_id": 4,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Benign/Normal",
+          "patient_id": 4,
+          "actual_label": "Positive/High-risk",
           "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 18.0
+            "risk_score_pct": 79.9,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "AFFX-CreX-5_at",
+                "impact": 0.2592
+              },
+              {
+                "feature": "AFFX-PheX-M_at",
+                "impact": 0.0715
+              },
+              {
+                "feature": "AFFX-BioB-M_at",
+                "impact": 0.071
+              },
+              {
+                "feature": "AFFX-BioC-3_at",
+                "impact": 0.071
+              },
+              {
+                "feature": "J04982_at",
+                "impact": -0.0463
+              },
+              {
+                "feature": "D29013_at",
+                "impact": 0.0247
+              }
+            ]
           },
           "quantum": {
-            "prediction": "Malignant",
-            "risk_score_pct": 76.9
-          }
-        },
-        {
-          "case_id": 5,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Benign/Normal",
-          "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 18.6
-          },
-          "quantum": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 30.4
-          }
-        },
-        {
-          "case_id": 6,
-          "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHAAAABwCAAAAADji6uXAAAQoElEQVR4nK1a2Y4kSVa9m5n5FktuXd3TPSNgEIzECwKNkOYDeOAR/oA3Poc/4YkP4AN4RcAIGHqvqtwiwjdb7kWeS6+ZTUXlmJSZEe7pfuxcu8uxBeGpdtsg/Ml/gE1f/OmT9wE8omcJ9apen4TGb+ea8q9O6soxk4AaGSo89TA9+To0+Js/BATTZ/AADMwMTZkMSrmexuJ/e5hTMbNcynJR01PPydOAiP8MCGBPPrM0JTMg88SigWrMxSke6jKbE3SsplyefPfTDAkNwKxAeZagoppBSpPFIceZPJSmv50MiCVnBfb1069+uv/l7+c+/a3m+BzgYnVCRmFrS4cuEPDtmzRpmVMkMPBM5d1NauUvp9/43+TyPCAQIzmp6uAks7BiodrSoRXhQqBEGY8B/HX+l/yvAPPzgFC8uNqRF2ZwpA7tgMwNpBzMHFrWdzfpv/3dH4/b01+DPssQwbyQigs2h1AX9WlUm7MNKbImK3HM8O4Mf/VPuEHZxvIsQ0YBcIGduBZnqkIaPDY01VrrFLhABqJ3Z5iLmZaS58NzgEvkECOKuOCp7mIJMJQwDZiKpYyaGI6Iw6/rmgh13r1+Ds4Q2EMQ8z6qb0aAhLXbwyrPKEQJoccjnObPlnf+0V9/Yv/4DKCgMXMlJFyba2IKql6jur5yAxkIFqYnnebJXvz/zYn4pq43bXPeBHCJS9j0AFTlV/XGUc0qKvjn7zyGSz+etshDW0YPRYCaKfnVDCS0q5Bq1InnsiRaQHjSTZ9N3j/ZSI3IIUqdKg8jWaFEUCy6bZxi1ljYChwT+A8/zxMUBq4C5JqBnZvBkA8sUXQIXgsXh/J0r5836U81ZkZHTJ1DDAQpotlMOfG4p14LGObQNEdUi60B4MWzeARMYXEb5RViTBBAWRKpt44xFsypKEB4d8B/WGrhXzxLk4kEWchOfGkzOEcVkQUmweRB550WmM2OYJgW86+fHUUGMhOmdXZmKQOs1RGxSqmcxxvVWPJwk44oT8PyC59zVlqcphV20HA3g4LsrckCS90ohKTIY2nLwT318DNm+8m4cBR81bT1uQvNNlZSsSUfZmp3XLsoVK+WLOSb8ldP9vbJdof33BiyQ2bxFVnlpzu6JHlCnOvg2VW4jwYcl8h8Z5N+B/WJRwydC4G7FqjRagaIVeRKRgUZkSeoZsbkpvqITHPfEJ8kSczsxDtVX5lEH5jR15OBhuBcEMkzM2TKdgRDNEBblNuPbzExMvsg3niTijPLLjpXK9GhAkDFgjnAknCOAHwa6x5w0dzeS80rh7kKIHnJ84fADCxFEkW5dG7USn8vqQ0JEZ14Ei8OGzDNWkSnMSXjOOBI2BSdU+2f1kNybFQIMDtPGEgQZGxKx6MPLulMjhIIQWS/9Gpq5ndn+BNRyMgiLCFXgja1VmMKTqZSS52MCTDX6CRLlumI8vR8c7AoUalp7URWETo3dOokSQkZMlL2PLU5H9i4PYLh800IhX0VfAiucgESdOhRA2qVvKHUrckUgSPCwL8HQDEW571oAHPMFXoK1UZWuDrFTizPsEvimEc/7vzvw6SMjN4Ht2Yflr4GbLx6Z90091Rqt+j8bFRWwwln93JABmbvwHdSBcG2tq1XPxPM4yEZA2Qznch8nnjaIL8cUIjYSfBFKm6qdezak1hWY+LAcoNSuh58cvUO1PEzE6EjTSrOOfK5a1HCquFtm2qImgrrHLDAQQG4iSEJ3sI6vthpHNIS9a5dqfltixfreOKWeONOayeZlnRfT1YIY9b56PL0o8ZEtKh7gGb9qguBb87m0g89nyBBE+tkZMBaeGZiPUZEPd3E3F2WWVXBdfXp1scV2M0s61Xxv1hrJGdKGw28KKuyTy8OfGJirn3Atj4//2iUtPF6qKAxrfaLj8aMQeLsuUk0DYAvBVzWEJyHulnVzatXGob1GjLGc61a+hkUDiYFIW7meUiIDqZjlPdTTZiYqAoudD+rJgrnkg8OTyHUOt30IeWOugzB94UiMOmoL3MaQmYODROHkxMObXIungnr20zmix8Rx1WuuVyluqwPcBeKLwIUQNcwhdA0J/3HVbXNrkTNO0/sgaZAt03u8ngobcS5VZt0fiFDWRZmWLsPflGdrqbSt6b44afOWJrsnR9pj30OqxwRGVRk8aMXAMp9aaLm7IPQrAvv6sN0W49d1OA18Samig75HPfQk6kIgD9GRP248SLXvPMfXryqfrnjw3iYUj5522wmhQyD6w8n2KYY3M6R0hQiH6NpftzQHKMn2G6Z/eXNyeu4D+JpsJGbgwi8GeogccslWknZwqRhyUjvHxayaDXltR8/WnVwEVfoqPhdRuTrMsUCH51WOHrMBbJJKN6v6heNIS5TwsbH+byqXCqCuXO74ayJPIwlxEJvTuYy4ASWuGjxOYxYvQCQYJG5DtvVByduYktwUcrFVOp87dchfeXriuc3BaMcfE9oIQ5Qv6RaiCASle5ie5qylfksv83rTn9uZe016bnKefO18/EE6JKBOAnW1fULAFEdsgsYNzdGTa7zV7xa5U2JKFqSNTf0eWec+dJH1ioph2KH+v0BEYXF2dZZ83btKdubsqE3grv2YmzSyNdu53/HJ0AhFkFH5KGaQnp/LyUEZGxXq/Ox/rItN1/M3i/FvZq+KtPUHYxk9vH6QN6beJpjsRv/EhHFgGjQSpHbzYd9LCOeROd6dsw7nF24miveu3hROYh1HFCiyLRkm/cFJCRDqlKb61d4hZddXV+T8Ybf9twK8RYm3KjOIfOMBut93TtfXiCEkYD4A+tqd/Gfm1Il6kC5Ykhtkpw2EzY0B+g7nnoEJ9D2wRDr9x7DBY5XdZidCCd3+INPDsqs7W3yH7RBY9FdWk2xops4NpSrYbDskIb3ZwjCzfp23OreTmufElX2EbcitaZLf5r9nibY1T4zcnZonrUk1e4YwO9NSdGxh331StJ40VZzgy5FsjQNArMvMefqkva8rF/mVUbcV4UUHRzlpd8TQAgVQHGlsdDsKq3rPuDs5qT7nsJ+y7u5ynUenZOmuEge1KNLdsSq/o/4YpzLzC667cdzlXiP8OmbGPznqVw1aRA/4wSQR2woNOszabUoNuUFgBKEQ/pMuJxvKQwbucZM4/7VthgN01qqYAki6NXwFfEVcE5zM71AtWEJQG6+0Hr+nOo28t6fXV0Le6nClV4oVTuU7LfVOLS7wjikgDcY3hsQWdqGXdt/Qofzcxi6w+F8qmgOVHQIenkq00gq7cx4qmOTMndI6N4/LFSz8FldyRC3eviAECVnnwa1Ub1l3rN5hKqCmdXJWErjFJrLo9favmkGU9FDuS1X89Rfz7e/Te2tfv7WlV12CMr5AE0leVesb4qIeIccp/ACk+YARD2/3ZK8rrwjQz+WdWGUQUIbg2aVNDvkbk87oA3GZWHx/ecWpkB5N0roOj7tZNqnIQ1b8IUqyTXXCuVwqL2W/sYiNHpVoFJf+fcGhNJMp/WmkqvPr7O4JWflqsHQNr1sPfFBXVsdpNXBcoRDxOKolfmIaoHfyzSIRcvuF6UtcKgrbvi/b9bVRx7aYYY9Xzd0Pk8rzJjzJkfCygTS6JXHdwe0pXPfjIFZGUO//+XNOLxyr5urC1mHFfSr62zzKpCVVFWknMMw10KglSaTcnDHmPT7e0FmvcJ0JePP/BCv9XeTBC06pjFWTec75lFmZRg4mBOuxLM0h+oFcwuzOLdv4nazO4FZcBWGVMMurDvzSJSoqpvd3ljmCkY9TY4NR++nYyTGD106zVdng9cPon7UCeQVTFYLBPSGQ+fH/c40eaqzX+Vm35+MUMp01Kr+D0NIhxy2jNAllOvy85ObOSc3XZzdTmkYubZbh1nSaqcD7hBjHUdqDxcvmVtM/gY7SJ+5clid0NvXG0gMNzMkU877ss4oYLdzEVGi25OJcefyC0wKRXVnJ2nFn54N+7n7+NTGGYnQxIdrVfVuPkisSN2h26/nwirt9O6AP85KJVHUuaSzutz0qnCF5xARJt9SrHfTZhwpqC9iB5cdTkGrMByRS5ddix9cmr1dl0ZdDR+GNzi51eXFhV1t4uCq6NygKpMz2bdBaoNmamRojtjHf4Js9qZzgYT2em021tpMLZ1qA+1hLklpzixzWiE5DemwdVM9jMfk0mWL9Hs5TlMpsUyvC5RryasNy8Y3XsD1B4sx2hyclpWFDnSQj5pYX/ZHBf5CDO27hlW2xGnxep6rdLn6RJv/Hda+3AQCCmlTjLrsVu7gyU9vQn9wR+jSZRv/LqN+J4sXAiyR++wDAPsz6y12ZilMIhJ9vczp1lNP3lbuWuj1Vo8UUbbsKBk+0ERTK5QpirtOK91u9lcbo6T7Zo+tVU2SwhHGUNSdfQUOrpvojpzj0x3OHfL91ld2maKxsU61qXZvm03sMftkrY+OsFrlWUNlX5Lx3iPozZEMvzXvwwWD5DThbC5dZz518vVqNcZGVOK8iq741bqeLnPLt5Nn2Ycj9g+X0yvfqU73XywLqMaKLPsc5bpbn8jq42se8pUrt42byOBr9CfzCNTczNDs3h1wseK3kI+fFKwgD9mb1MamV8i3ctrP2kXoRE/zLnV6SLirqn5M/qtjVNuSahZ/uYd6TDxZqNC89EDqVYA+n821rRcthV4l9yIHRn9zcngtmISOkBi4DNhySGWJj/scgOCimYJyiVTE9aNj3K9aEj6bsNW031WbQ31dfcmvx66gwHzkVtDjjrMikCKCRbQslgGpDF9ede05exisvqG3Z9X/0Gy0nVJuadp1VRRjq/tjTHoXCnivpmDZjrjbhwZFzcsZyZLivKtWXdWHrqEvREvmzTxJvxxdKt56j+m4Xe4HfrSgLPZd4NBAkSyb2XL6gUzmtp7zgbCi0J3eCr09vzJRyUNDpE+/+vkZ8B2pe595yDYLbFn4alKD7FPyU7Es6w3F3H95sq/a1xdv+mapyD1xc0Rqu0tq31jk7hTIArpcKkCZ3LJzl1LCSppxdfpZk8S2l7V/w5924P9LmzEF2R/jNPdjd4dm36key41yx3M5/2haqSur+O/hsNnJYZNu5nl13byJTZlKiu6Yir8M4RKEaI+e84CIaJZFFbBAVnVO+52PJ7cFuvKGCoNdhjmCK9V0lKa553gfhQ+mvUO9zwVZFqK6UDXPaPYF1FpuqlQa32PW2PVF2qc3nX+C4f2H+7h4tOyDLyUhg+X8Si5ToKRO1F+6PlXhMwPhMsRK1NqjGN4j4BKDC63H8r8QNLSMrhSUQpkzkkucdrIsBN9warBQ46PcumMC/yGb3mW1B7Z3Jl7iZBlXg4RiSZQtMxSXJhkYeVmLz8TznCwNEt79lMfDIbhHkt+z9X1nlj9Eyw6fEfGixbi4e4soQsG8nBjdvzOg+xbkXl/8SKY+0Gde1lLxLt0SmJEymGUtdyljOk61PY7iD77f+em9sQ1KRqLlXF154I7JVB9G4rgl6EfhdleJ78fvQch967l30Is4uz+seccK77a6l3/g5nBE8oYl4h/4PfjP8nkpG4/q6tFp72P1ITfhAoeGpOSPmHI/FN3HF3z75SEF3fvMQ8385sK9TRGJmJBde8z88C6xPQjSO5xvkuudTR9FwGPBfOjLHd7Sj4Vl3Rx7+CPEx3T27TQD6f5w7DeG+NZC98GKQIBGiL6qNk+99f8ArmIRWfzkifgAAAAASUVORK5CYII=",
-          "actual_label": "Malignant",
-          "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 9.4
-          },
-          "quantum": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 19.4
-          }
-        },
-        {
-          "case_id": 7,
-          "thumbnail": "data:image/png;base64,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",
-          "actual_label": "Benign/Normal",
-          "classical": {
-            "prediction": "Benign/Normal",
-            "risk_score_pct": 27.7
-          },
-          "quantum": {
-            "prediction": "Malignant",
-            "risk_score_pct": 45.6
+            "risk_score_pct": 79.6,
+            "prediction": "Positive/High-risk",
+            "top_features": [
+              {
+                "feature": "M63138_at",
+                "impact": 0.081
+              },
+              {
+                "feature": "X95735_at",
+                "impact": 0.0534
+              },
+              {
+                "feature": "M22960_at",
+                "impact": 0.0274
+              },
+              {
+                "feature": "M55150_at",
+                "impact": 0.0183
+              }
+            ]
           }
         }
       ]

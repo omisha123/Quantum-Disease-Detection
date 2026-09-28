@@ -1,360 +1,1317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<title>Hybrid QML Disease Detection Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid QML Multi-Disease Screening Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #0f1117;
-    --card: #171a23;
-    --card-border: #2a2e3a;
-    --text: #e8e9ed;
-    --muted: #9297a8;
-    --blue: #4f8cff;
-    --purple: #a066ff;
-    --red: #ff5c7a;
-    --green: #35d68a;
+  :root[data-theme="dark"] {
+    --bg: #05070d;
+    --card: rgba(13, 18, 30, 0.65);
+    --card-border: rgba(99, 102, 241, 0.18);
+    --card-glow: rgba(99, 102, 241, 0.15);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --blue: #38bdf8;
+    --blue-glow: rgba(56, 189, 248, 0.35);
+    --purple: #a855f7;
+    --purple-glow: rgba(168, 85, 247, 0.35);
+    --red: #f43f5e;
+    --red-glow: rgba(244, 63, 94, 0.3);
+    --green: #10b981;
+    --green-glow: rgba(16, 185, 129, 0.3);
+    --particle-color: 56, 189, 248;
+    --particle-line: 168, 85, 247;
+    --header-bg: rgba(7, 10, 19, 0.75);
+    --table-header: rgba(15, 23, 42, 0.6);
+    --btn-bg: rgba(255, 255, 255, 0.04);
   }
+
+  :root[data-theme="light"] {
+    --bg: #f0f4f9;
+    --card: rgba(255, 255, 255, 0.75);
+    --card-border: rgba(99, 102, 241, 0.15);
+    --card-glow: rgba(99, 102, 241, 0.08);
+    --text: #0f172a;
+    --muted: #64748b;
+    --blue: #0284c7;
+    --blue-glow: rgba(2, 132, 199, 0.25);
+    --purple: #7e22ce;
+    --purple-glow: rgba(126, 34, 206, 0.25);
+    --red: #e11d48;
+    --red-glow: rgba(225, 29, 72, 0.2);
+    --green: #059669;
+    --green-glow: rgba(5, 150, 105, 0.2);
+    --particle-color: 2, 132, 199;
+    --particle-line: 126, 34, 206;
+    --header-bg: rgba(255, 255, 255, 0.85);
+    --table-header: rgba(241, 245, 249, 0.8);
+    --btn-bg: rgba(0, 0, 0, 0.04);
+  }
+
   * { box-sizing: border-box; }
+
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg);
     color: var(--text);
-    padding: 32px 24px 80px;
+    padding-bottom: 80px;
+    line-height: 1.6;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
   }
-  .container { max-width: 1100px; margin: 0 auto; }
-  h1 { font-size: 1.6rem; margin-bottom: 4px; }
-  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 0.95rem; }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--card-border); }
-  .tab {
-    padding: 10px 18px; cursor: pointer; color: var(--muted); font-weight: 600;
-    border-bottom: 2px solid transparent; user-select: none; font-size: 0.95rem;
+  /* Interactive Background Canvas */
+  #bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
   }
-  .tab.active { color: var(--text); border-bottom-color: var(--blue); }
-  .view { display: none; }
-  .view.active { display: block; }
 
+  /* Cyber-Biomedical Ambient Top Header */
+  .top-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--header-bg);
+    backdrop-filter: blur(24px) saturate(190%);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    border-bottom: 1px solid var(--card-border);
+    padding: 14px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .top-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+    height: 3px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, transparent, var(--blue), var(--purple), transparent);
+    opacity: 0.95;
+    box-shadow: 0 0 10px var(--blue-glow), 0 0 15px var(--purple-glow);
+  }
+
+  .top-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5%;
+    right: 5%;
+    height: 3px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, transparent, var(--blue), var(--purple), transparent);
+    opacity: 0.95;
+    box-shadow: 0 0 10px var(--blue-glow), 0 0 15px var(--purple-glow);
+  }
+
+  .header-title-container {
+    text-align: center;
+    flex-grow: 1;
+  }
+
+  /* Holographic Brand & Logo Switcher */
+  .brand-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+    border: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    box-shadow: 0 0 20px var(--purple-glow);
+    position: relative;
+    animation: floatGlow 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes floatGlow {
+    0% { transform: translateY(0px); box-shadow: 0 0 15px var(--blue-glow); }
+    100% { transform: translateY(-2px); box-shadow: 0 0 25px var(--purple-glow); }
+  }
+
+  .header-text-group { display: flex; flex-direction: column; }
+
+  .top-header h1 {
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text) 20%, var(--blue) 60%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .top-header .subtitle {
+    color: var(--muted);
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* Live Telemetry Pill */
+  .telemetry-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--btn-bg);
+    border: 1px solid var(--card-border);
+    padding: 6px 18px;
+    border-radius: 99px;
+    backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 12px rgba(255,255,255,0.02);
+  }
+
+  .telemetry-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .telemetry-item b { color: var(--text); font-weight: 600; }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--green-glow);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+
+  .telemetry-divider {
+    width: 1px;
+    height: 12px;
+    background: var(--card-border);
+  }
+
+  /* Futuristic Theme Switcher */
+  .theme-toggle {
+    background: var(--btn-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    padding: 6px 14px 6px 8px;
+    border-radius: 99px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-toggle:hover {
+    transform: translateY(-2px);
+    border-color: var(--blue);
+    box-shadow: 0 6px 20px var(--blue-glow);
+  }
+
+  .theme-icon-bg {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--card-border);
+    font-size: 0.85rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 32px auto 0;
+    padding: 0 20px;
+  }
+
+  /* Floating Main Nav */
+  .main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    padding: 6px;
+    border-radius: 18px;
+    border: 1px solid var(--card-border);
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .role-btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 24px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+  }
+
+  .role-btn:hover { color: var(--text); background: var(--btn-bg); }
+
+  .role-btn.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--blue) 0%, #2563eb 100%);
+    box-shadow: 0 8px 25px var(--blue-glow);
+  }
+
+  /* Sub Nav Bar */
+  .sub-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .sub-btn {
+    padding: 10px 22px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 600;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    transition: all 0.25s ease;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+  }
+
+  .sub-btn:hover {
+    color: var(--text);
+    border-color: var(--purple);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px var(--purple-glow);
+  }
+
+  .sub-btn.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--purple) 0%, #7c3aed 100%);
+    border-color: transparent;
+    box-shadow: 0 6px 20px var(--purple-glow);
+  }
+
+  .view-panel { display: none; }
+  .view-panel.active {
+    display: block;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Glassmorphic Holographic Cards */
   .card {
-    background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
-    padding: 20px 22px; margin-bottom: 20px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 26px 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
-  .card h2 { font-size: 1.05rem; margin: 0 0 14px; }
-  .card h3 { font-size: 0.9rem; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
 
-  /* ---- Clinician view ---- */
-  .patient-selector { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .card:hover {
+    border-color: var(--purple);
+    box-shadow: 0 16px 48px var(--card-glow);
+    transform: translateY(-2px);
+  }
+
+  .card h2 {
+    font-size: 1.2rem;
+    margin: 0 0 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .card h3 {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Interactive Patient Selection */
+  .patient-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
   .patient-btn {
-    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--card-border);
-    background: var(--card); color: var(--muted); cursor: pointer; font-size: 0.85rem;
+    padding: 9px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: var(--btn-bg);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.25s ease;
   }
-  .patient-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
 
-  .risk-banner {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 24px; border-radius: 12px; margin-bottom: 20px;
+  .patient-btn:hover { background: var(--card); color: var(--text); border-color: var(--blue); }
+
+  .patient-btn.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   }
-  .risk-banner.high { background: rgba(255,92,122,0.12); border: 1px solid rgba(255,92,122,0.4); }
-  .risk-banner.low { background: rgba(53,214,138,0.12); border: 1px solid rgba(53,214,138,0.4); }
-  .risk-label { font-size: 1.15rem; font-weight: 700; }
-  .risk-banner.high .risk-label { color: var(--red); }
-  .risk-banner.low .risk-label { color: var(--green); }
-  .risk-score { font-size: 2rem; font-weight: 800; }
 
-  .feature-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--card-border); }
+  /* Glowing Progress Feature Rows */
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+
   .feature-row:last-child { border-bottom: none; }
-  .feature-name { width: 190px; font-size: 0.88rem; flex-shrink: 0; }
-  .feature-bar-track { flex: 1; height: 8px; background: #262a36; border-radius: 4px; overflow: hidden; }
-  .feature-bar-fill { height: 100%; border-radius: 4px; }
-  .feature-bar-fill.malignant { background: var(--red); }
-  .feature-bar-fill.benign { background: var(--green); }
-  .feature-direction { width: 150px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+
+  .feature-name {
+    width: 220px;
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .feature-bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--btn-bg);
+    border-radius: 99px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .feature-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  .feature-bar-fill.malignant {
+    background: linear-gradient(90deg, #f43f5e 0%, #fb7185 100%);
+    box-shadow: 0 0 12px var(--red-glow);
+  }
+
+  .feature-bar-fill.benign {
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+
+  .feature-direction { width: 160px; font-size: 0.82rem; text-align: right; flex-shrink: 0; font-weight: 600; }
   .feature-direction.malignant { color: var(--red); }
   .feature-direction.benign { color: var(--green); }
 
+  /* Table styling */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--card-border); }
+
+  th {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--table-header);
+  }
+
+  th:first-child { border-top-left-radius: 10px; }
+  th:last-child { border-top-right-radius: 10px; }
+
+  td { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  td.model-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; }
+  td.model-name.classical { color: var(--blue); font-weight: 600; }
+  td.model-name.quantum { color: var(--purple); font-weight: 600; }
+
+  /* Pipeline Info Grid */
+  .pipeline-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+
+  .pipeline-info > div {
+    background: var(--btn-bg);
+    border: 1px solid var(--card-border);
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .pipeline-info b { display: block; color: var(--text); font-size: 1.05rem; margin-top: 4px; font-weight: 700; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  @media (max-width: 900px) {
+    .telemetry-bar { display: none; }
+  }
+
+  @media (max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; }
+    .top-header { padding: 12px 16px; flex-wrap: wrap; }
+    .top-header > div:first-child { display: none; }
+    .feature-name { width: 130px; }
+    .feature-direction { width: 120px; }
+  }
+
   .disclaimer {
-    font-size: 0.8rem; color: var(--muted); padding: 14px 16px; background: #1a1d27;
-    border-radius: 8px; border-left: 3px solid var(--blue); margin-top: 16px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    padding: 16px 20px;
+    background: var(--btn-bg);
+    border-radius: 12px;
+    border-left: 3px solid var(--blue);
+    margin-top: 24px;
+    line-height: 1.6;
   }
 
-  details { margin-top: 16px; }
-  summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 8px 0; }
-  .quantum-note { padding: 14px 0 0; font-size: 0.85rem; color: var(--muted); }
-
-  /* ---- Researcher view ---- */
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--card-border); }
-  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
-  td.model-name { font-weight: 600; }
-  td.model-name.classical { color: var(--blue); }
-  td.model-name.quantum { color: var(--purple); }
-
-  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 16px; }
-  .metric-box { background: #1a1d27; border-radius: 8px; padding: 14px 16px; }
-  .metric-box .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-  .metric-box .value { font-size: 1.3rem; font-weight: 700; }
-  .metric-box .value.classical { color: var(--blue); }
-  .metric-box .value.quantum { color: var(--purple); }
-
-  .pipeline-info { display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
-  .pipeline-info b { color: var(--text); }
-
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
-
-  /* ---- Imaging view ---- */
-  .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-  .image-case {
-    background: #1a1d27; border: 1px solid var(--card-border); border-radius: 10px;
-    padding: 14px; text-align: center;
+  /* ==================== STARTUP LOADING SCREEN ==================== */
+  #startup-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background:
+      radial-gradient(circle at 50% 45%, rgba(56,189,248,0.10), transparent 28%),
+      radial-gradient(circle at 50% 45%, rgba(168,85,247,0.08), transparent 48%),
+      #03050b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.9s ease, visibility 0.9s ease;
   }
-  .image-case img {
-    width: 100%; max-width: 140px; border-radius: 6px; margin-bottom: 10px;
-    image-rendering: pixelated; border: 1px solid var(--card-border);
+
+  #startup-screen.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
-  .image-case .actual { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
-  .image-case .pred-row {
-    display: flex; justify-content: space-between; font-size: 0.8rem; padding: 4px 0;
-    border-top: 1px solid var(--card-border);
+
+  .startup-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.035) 1px, transparent 1px);
+    background-size: 55px 55px;
+    transform: perspective(500px) rotateX(58deg) scale(1.5);
+    transform-origin: center bottom;
+    animation: gridMove 8s linear infinite;
   }
-  .image-case .pred-row .who { color: var(--muted); }
-  .image-case .pred-row .val.malignant { color: var(--red); font-weight: 600; }
-  .image-case .pred-row .val.benign { color: var(--green); font-weight: 600; }
-  .image-case .agree { margin-top: 8px; font-size: 0.72rem; color: var(--muted); }
+
+  @keyframes gridMove {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: 0 55px, 55px 0; }
+  }
+
+  .startup-orb {
+    position: relative;
+    width: min(430px, 82vw);
+    height: min(430px, 82vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .startup-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(56,189,248,0.35);
+    box-shadow: 0 0 25px rgba(56,189,248,0.12), inset 0 0 25px rgba(168,85,247,0.08);
+  }
+
+  .startup-ring.r1 {
+    width: 72%;
+    height: 72%;
+    border-top-color: #38bdf8;
+    border-right-color: rgba(168,85,247,0.7);
+    animation: spin 7s linear infinite;
+  }
+
+  .startup-ring.r2 {
+    width: 58%;
+    height: 58%;
+    border-left-color: #a855f7;
+    border-bottom-color: rgba(56,189,248,0.7);
+    animation: spinReverse 5s linear infinite;
+  }
+
+  .startup-ring.r3 {
+    width: 43%;
+    height: 43%;
+    border-style: dashed;
+    border-color: rgba(56,189,248,0.45);
+    animation: spin 12s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes spinReverse {
+    to { transform: rotate(-360deg); }
+  }
+
+  .startup-core {
+    width: 27%;
+    height: 27%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.38), rgba(99,102,241,0.12) 55%, transparent 72%);
+    border: 1px solid rgba(56,189,248,0.55);
+    box-shadow: 0 0 35px rgba(56,189,248,0.35), 0 0 70px rgba(168,85,247,0.2);
+    animation: corePulse 2s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(32px, 7vw, 52px);
+  }
+
+  @keyframes corePulse {
+    0%,100% { transform: scale(0.92); opacity: 0.8; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  .startup-dna {
+    position: absolute;
+    width: 110px;
+    height: 300px;
+    opacity: 0.28;
+    left: 4%;
+    top: 16%;
+    transform: rotate(18deg);
+    background:
+      radial-gradient(circle at 20% 15%, #38bdf8 0 2px, transparent 3px),
+      radial-gradient(circle at 80% 35%, #a855f7 0 2px, transparent 3px),
+      radial-gradient(circle at 25% 58%, #38bdf8 0 2px, transparent 3px),
+      radial-gradient(circle at 75% 82%, #a855f7 0 2px, transparent 3px);
+    animation: dnaFloat 4s ease-in-out infinite alternate;
+  }
+
+  .startup-dna::before,
+  .startup-dna::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(56,189,248,0.5);
+    border-radius: 50%;
+  }
+
+  .startup-dna::after {
+    transform: translateX(45px);
+    border-color: rgba(168,85,247,0.5);
+  }
+
+  @keyframes dnaFloat {
+    from { transform: rotate(18deg) translateY(8px); }
+    to { transform: rotate(18deg) translateY(-8px); }
+  }
+
+  .startup-data {
+    position: absolute;
+    right: 4%;
+    top: 17%;
+    width: 150px;
+    height: 260px;
+    opacity: 0.45;
+    overflow: hidden;
+  }
+
+  .startup-data span {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #38bdf8;
+    white-space: nowrap;
+    animation: dataScroll 3s linear infinite;
+  }
+
+  .startup-data span:nth-child(even) { color: #a855f7; animation-delay: -1.5s; }
+
+  @keyframes dataScroll {
+    from { transform: translateY(250px); opacity: 0; }
+    25% { opacity: 0.8; }
+    75% { opacity: 0.8; }
+    to { transform: translateY(-30px); opacity: 0; }
+  }
+
+  .startup-content {
+    position: absolute;
+    z-index: 5;
+    width: min(620px, 90vw);
+    bottom: 8%;
+    text-align: center;
+  }
+
+  .startup-title {
+    margin: 0;
+    font-size: clamp(1.35rem, 4vw, 2.15rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(90deg, #f8fafc, #38bdf8, #a855f7, #f8fafc);
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: titleShine 4s linear infinite;
+  }
+
+  @keyframes titleShine {
+    to { background-position: 250% center; }
+  }
+
+  .startup-subtitle {
+    margin: 8px 0 18px;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 20px;
+  }
+
+  .startup-status {
+    min-height: 24px;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: opacity 0.25s ease;
+  }
+
+  .startup-status .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 12px rgba(56,189,248,0.8);
+    animation: statusPulse 1s infinite;
+  }
+
+  @keyframes statusPulse {
+    50% { transform: scale(1.7); opacity: 0.5; }
+  }
+
+  .startup-progress {
+    width: min(460px, 80vw);
+    height: 5px;
+    margin: 14px auto 0;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .startup-progress-bar {
+    width: 4%;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #38bdf8, #6366f1, #a855f7);
+    box-shadow: 0 0 14px rgba(56,189,248,0.7);
+    transition: width 0.45s ease;
+  }
+
+  .startup-percent {
+    margin-top: 8px;
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+  }
+
+  .startup-ecg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 120px;
+    opacity: 0.12;
+  }
+
+  .startup-ecg path {
+    fill: none;
+    stroke: #38bdf8;
+    stroke-width: 2;
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+    animation: ecgMove 3s linear infinite;
+  }
+
+  @keyframes ecgMove {
+    to { stroke-dashoffset: 0; }
+  }
+
+  .startup-corner {
+    position: absolute;
+    color: rgba(148,163,184,0.45);
+    font: 10px 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+
+  .startup-corner.tl { top: 25px; left: 28px; }
+  .startup-corner.tr { top: 25px; right: 28px; text-align: right; }
+  .startup-corner.bl { bottom: 25px; left: 28px; }
+  .startup-corner.br { bottom: 25px; right: 28px; text-align: right; }
+
+  @media (max-width: 700px) {
+    .startup-dna, .startup-data { display: none; }
+    .startup-content { bottom: 7%; }
+  }
+
 </style>
 </head>
 <body>
+
+<!-- ==================== STARTUP LOADING SCREEN ==================== -->
+<div id="startup-screen">
+  <div class="startup-grid"></div>
+  <div class="startup-corner tl">QML // DIAGNOSTIC CORE</div>
+  <div class="startup-corner tr">SYSTEM INITIALIZATION<br>SECURE SESSION</div>
+  <div class="startup-corner bl">UCI • PIMA • WISCONSIN • GENOMICS</div>
+  <div class="startup-corner br">HYBRID ENGINE v1.0<br>LOCAL COMPUTATION</div>
+
+  <div class="startup-orb">
+    <div class="startup-dna"></div>
+    <div class="startup-data">
+      <span>QUANTUM_KERNEL: INIT</span>
+      <span>QSVM: LOADING</span>
+      <span>VQC: LOADING</span>
+      <span>KERNEL_SHAP: READY</span>
+      <span>HEART_DATA: SYNC</span>
+      <span>WISCONSIN_DATA: SYNC</span>
+      <span>PIMA_DATA: SYNC</span>
+      <span>GENOMICS: SYNC</span>
+    </div>
+    <div class="startup-ring r1"></div>
+    <div class="startup-ring r2"></div>
+    <div class="startup-ring r3"></div>
+    <div class="startup-core">🧬</div>
+  </div>
+
+  <div class="startup-content">
+    <h1 class="startup-title">Hybrid Quantum-Classical ML Platform</h1>
+    <div class="startup-subtitle">MULTI-DISEASE EARLY DETECTION SYSTEM</div>
+    <div class="startup-status" id="startupStatus">
+      <span class="status-dot"></span>Initializing diagnostic environment...
+    </div>
+    <div class="startup-progress">
+      <div class="startup-progress-bar" id="startupProgressBar"></div>
+    </div>
+    <div class="startup-percent" id="startupPercent">4%</div>
+  </div>
+
+  <svg class="startup-ecg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+    <path d="M0,75 L170,75 L190,74 L205,76 L220,75 L240,75 L255,76 L270,75 L285,75 L300,73 L315,77 L330,75 L345,75 L365,75 L380,75 L395,75 L410,75 L425,75 L440,75 L455,75 L470,75 L485,75 L500,75 L515,75 L530,75 L545,75 L560,75 L575,75 L590,75 L605,75 L620,75 L635,75 L650,75 L665,75 L680,75 L695,75 L710,75 L725,75 L740,75 L755,75 L770,75 L785,75 L800,75 L815,75 L830,75 L845,75 L860,75 L875,75 L890,75 L905,75 L920,75 L935,75 L950,75 L965,75 L980,75 L995,75 L1010,75 L1025,75 L1040,75 L1055,75 L1070,75 L1085,75 L1100,75 L1115,75 L1130,75 L1145,75 L1160,75 L1200,75"></path>
+  </svg>
+</div>
+<!-- ==================== END STARTUP LOADING SCREEN ==================== -->
+
+
+<!-- INTERACTIVE BACKGROUND CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- TOP BAR HEADER -->
+<div class="top-header">
+  <div style="width: 100px;"></div> <!-- Spacer -->
+  <div class="header-title-container">
+    <h1>🧬 Hybrid Quantum-Classical ML Platform</h1>
+    <div class="subtitle">Multi-Disease Early Detection — UCI Heart, Pima Diabetes, Wisconsin Breast Cancer & Leukemia Genomics</div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+    <span id="themeIcon">🌙</span> <span id="themeText">Dark</span>
+  </button>
+</div>
+
 <div class="container">
-  <h1>🧬 Hybrid Quantum-Classical ML Platform</h1>
-  <div class="subtitle">Early Disease Detection — Breast Cancer Wisconsin Dataset</div>
-
-  <div class="tabs">
-    <div class="tab active" data-view="clinician">🩺 Clinician View</div>
-    <div class="tab" data-view="researcher">🔬 Researcher / Comparison View</div>
-    <div class="tab" data-view="imaging">🩻 Imaging Screening</div>
+  <!-- MAIN ROLE NAV BAR -->
+  <div class="main-nav">
+    <div class="role-btn active" id="btnDoctor" onclick="setRole('doctor')">🩺 Doctor View</div>
+    <div class="role-btn" id="btnResearcher" onclick="setRole('researcher')">🔬 Researcher View</div>
   </div>
 
-  <div class="card" style="margin-bottom:20px;">
-    <h3 style="margin-bottom:10px;">Dataset</h3>
-    <div class="patient-selector" id="datasetSelector"></div>
-    <div id="datasetWarning"></div>
+  <!-- ==================== DOCTOR VIEW ==================== -->
+  <div class="view-panel active" id="doctorView">
+    <div class="card">
+      <h3>Select Patient Case</h3>
+      <div class="patient-selector" id="doctorPatientSelector"></div>
+    </div>
+    <div id="doctorRiskBanner"></div>
+    <div class="card">
+      <h2>What's Driving This Assessment</h2>
+      <div id="doctorFeatureList"></div>
+    </div>
   </div>
 
-  <!-- ============ CLINICIAN VIEW ============ -->
- <div class="view active" id="clinician">
-    <div class="card">
-      <h3>Select patient (test case)</h3>
-      <div class="patient-selector" id="patientSelector"></div>
+  <!-- ==================== RESEARCHER VIEW ==================== -->
+  <div class="view-panel" id="researcherView">
+    <!-- SUB NAV FOR RESEARCHER DATASETS -->
+    <div class="sub-nav">
+      <div class="sub-btn active" onclick="setResearcherTab('heart', this)">❤️ Heart Disease</div>
+      <div class="sub-btn" onclick="setResearcherTab('wisconsin', this)">🎗️ Wisconsin Breast Cancer</div>
+      <div class="sub-btn" onclick="setResearcherTab('leukemia', this)">🧬 Leukemia Genomics</div>
+      <div class="sub-btn" onclick="setResearcherTab('diabetes', this)">🩸 Pima Diabetes</div>
     </div>
 
-    <div id="riskBanner"></div>
+    <!-- TABULAR RESEARCHER PANELS (HEART, WISCONSIN, LEUKEMIA, DIABETES) -->
+    <div id="tabularResearcherPanel">
+      <div class="card">
+        <h2>Dataset & Quantum-Classical Pipeline</h2>
+        <div class="pipeline-info" id="researcherPipelineInfo"></div>
+      </div>
 
-    <div class="card">
-      <h2>What's driving this assessment</h2>
-      <div class="subtitle" style="margin-bottom:16px;">Top clinical measurements pushing this patient's result toward malignant or benign.</div>
-      <div id="featureList"></div>
-    </div>
-
-    <div class="disclaimer">
-      ⚕️ <b>Clinical note:</b> This tool is a research prototype for early-detection screening support.
-      It is not a certified diagnostic device. All flagged results should be confirmed through standard
-      clinical workflow (biopsy, radiology, specialist review) before any treatment decision.
-    </div>
-
-    <details>
-      <summary>🔬 See quantum model's assessment (research/comparison, optional)</summary>
-      <div class="quantum-note" id="quantumNote"></div>
-    </details>
-  </div>
-
-  <!-- ============ RESEARCHER VIEW ============ -->
-  <div class="view" id="researcher">
-    <div class="card">
-      <h2>Dataset & Pipeline</h2>
-      <div class="pipeline-info" id="pipelineInfo"></div>
-    </div>
-
-    <div class="card">
-      <h2>📊 Evaluation: Accuracy, Precision, Recall, F1, AUC-ROC, Training Time</h2>
-      <table id="evalTable"></table>
-      <div class="metric-grid" id="metricGrid"></div>
-    </div>
-
-    <div class="card">
-      <h2>🔍 Explainability (KernelSHAP) — per patient</h2>
-      <div class="subtitle" style="margin-bottom:16px;">Same model-agnostic method applied to both paths.</div>
-      <div class="patient-selector" id="patientSelectorResearcher"></div>
-      <div class="two-col" style="margin-top:20px;">
-        <div>
-          <h3 style="color:var(--blue);">Classical model — top features</h3>
-          <div id="classicalFeatures"></div>
-        </div>
-        <div>
-          <h3 style="color:var(--purple);">Quantum model — top features (PCA components)</h3>
-          <div id="quantumFeatures"></div>
+      <div class="card">
+        <h2>📊 Model Evaluation Metrics</h2>
+        <div class="table-responsive">
+          <table id="researcherEvalTable"></table>
         </div>
       </div>
-      <div class="disclaimer" id="groundTruth" style="margin-top:16px;"></div>
-    </div>
-  </div>
 
-  <!-- ============ IMAGING VIEW ============ -->
- <div class="view" id="imaging">
-    <div id="imagingWarning"></div> 
-
-    <div class="card">
-      <h2>Dataset & Pipeline</h2>
-      <div class="pipeline-info" id="imagingPipelineInfo"></div>
-    </div>
-
-    <div class="card">
-      <h2>📊 Evaluation: Accuracy, Precision, Recall, F1, AUC-ROC, Training Time</h2>
-      <table id="imagingEvalTable"></table>
-      <div class="metric-grid" id="imagingMetricGrid"></div>
-    </div>
-
-    <div class="card">
-      <h2>🖼️ Screening Cases</h2>
-      <div class="subtitle" style="margin-bottom:16px;">Classical CNN vs. quantum hybrid (CNN feature extractor → VQC) predictions per ultrasound image.</div>
-      <div class="image-grid" id="imagingCaseGrid"></div>
+      <div class="card">
+        <h2>🔍 Explainability (KernelSHAP) — Per Patient</h2>
+       
+        <div class="patient-selector" id="researcherPatientSelector"></div>
+        <div class="two-col" style="margin-top:20px;">
+          <div>
+            <h3 style="color:var(--blue);">Classical Ensemble — Top Features</h3>
+            <div id="classicalFeatures"></div>
+          </div>
+          <div>
+            <h3 style="color:var(--purple);">Quantum Ensemble — Top Features</h3>
+            <div id="quantumFeatures"></div>
+          </div>
+        </div>
+        <div class="disclaimer" id="groundTruthNote"></div>
+      </div>
     </div>
 
-    <div class="disclaimer">
-      ⚕️ <b>Clinical note:</b> This tool is a research prototype for early-detection screening support.
-      It is not a certified diagnostic device. All flagged results should be confirmed through standard
-      clinical workflow (biopsy, radiology, specialist review) before any treatment decision.
-    </div>
   </div>
 </div>
 
 <script>
-let DATA = null;
-let selectedDataset = null;
-let selectedPatient = 0;
 
-// ---------- Load pre-computed results ----------
-fetch('results.json')
-  .then(r => r.json())
-  .then(data => {
-    DATA = data;
-    const keys = Object.keys(DATA.datasets);
-    if (keys.length === 0) {
-      document.querySelector('.container').innerHTML =
-        '<h1>⚠️ No datasets found in results.json</h1><p>Run <code>python3 export_results.py</code> first.</p>';
-      return;
-    }
-    selectedDataset = keys[0];
-    initDatasetSelector();
-    initPatientSelectors();
-    renderClinicianView();
-    renderResearcherView();
-    renderImagingView();
-  })
-  .catch(err => {
-    document.querySelector('.container').innerHTML =
-      '<h1>⚠️ Could not load results.json</h1><p>Run <code>python3 export_results.py</code> first, ' +
-      'then serve this folder (e.g. <code>python3 -m http.server</code>) and open dashboard.html from there.</p>';
-  });
+/* ==================== STARTUP LOADER LOGIC ==================== */
+const BACKEND_HEALTH_URL = 'http://127.0.0.1:8000/health';
 
-// ---------- Tabs ----------
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.view).classList.add('active');
-  });
-});
+const startupMessages = [
+  'Initializing diagnostic environment...',
+  'Checking backend connection...',
+  'Establishing secure data channel...',
+  'Connecting to hybrid inference engine...',
+  'Loading quantum-classical pipeline...',
+  'Preparing disease screening models...',
+  'Synchronizing Wisconsin biopsy data...',
+  'Synchronizing clinical datasets...',
+  'Preparing explainability modules...',
+  'Loading patient and research data...',
+  'Rendering dashboard components...',
+  'System ready. Opening dashboard...'
+];
 
-// ---------- Dataset selector ----------
-function initDatasetSelector() {
-  const container = document.getElementById('datasetSelector');
-  container.innerHTML = '';
-  Object.keys(DATA.datasets).forEach(key => {
-    const ds = DATA.datasets[key];
-    const btn = document.createElement('div');
-    btn.className = 'patient-btn' + (key === selectedDataset ? ' active' : '');
-    btn.textContent = ds.display_name + (ds.is_real_data ? '' : ' (demo data)');
-    btn.addEventListener('click', () => {
-      selectedDataset = key;
-      selectedPatient = 0;
-      document.querySelectorAll('#datasetSelector .patient-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      initPatientSelectors();
-      renderClinicianView();
-      renderResearcherView();
-      renderImagingView();
-    });
-    container.appendChild(btn);
-  });
-  renderDatasetWarning();
+let startupMessageIndex = 0;
+let startupProgress = 4;
+let backendReady = false;
+let resultsReady = false;
+let startupStartedAt = Date.now();
+
+function setStartupStatus(message) {
+  const status = document.getElementById('startupStatus');
+  if (!status) return;
+  status.style.opacity = '0';
+  setTimeout(() => {
+    status.innerHTML = '<span class="status-dot"></span>' + message;
+    status.style.opacity = '1';
+  }, 150);
 }
 
-function renderDatasetWarning() {
-  const ds = DATA.datasets[selectedDataset];
-  const warnDiv = document.getElementById('datasetWarning');
-  if (!ds.is_real_data) {
-    warnDiv.innerHTML = `<div class="disclaimer" style="margin-top:12px; border-left-color: var(--red);">
-      ⚠️ This dataset is using <b>synthetic placeholder data</b> shaped like the real dataset
-      (real download requires a Kaggle account — see README). Numbers here demonstrate the
-      pipeline works correctly, not real-world accuracy.
-    </div>`;
-  } else {
-    warnDiv.innerHTML = `<div style="color:var(--muted); font-size:0.85rem; margin-top:10px;">${ds.framing}</div>`;
+function setStartupProgress(value) {
+  startupProgress = Math.max(0, Math.min(100, value));
+  const bar = document.getElementById('startupProgressBar');
+  const percent = document.getElementById('startupPercent');
+  if (bar) bar.style.width = startupProgress + '%';
+  if (percent) percent.textContent = Math.round(startupProgress) + '%';
+}
+
+function nextStartupMessage() {
+  if (startupMessageIndex < startupMessages.length) {
+    setStartupStatus(startupMessages[startupMessageIndex]);
+    startupMessageIndex++;
   }
 }
 
-function initPatientSelectors() {
-  const ds = DATA.datasets[selectedDataset];
-  const ids = ds.patients.map(p => p.patient_id);
-  [document.getElementById('patientSelector'), document.getElementById('patientSelectorResearcher')].forEach(container => {
-    container.innerHTML = '';
-    ids.forEach(id => {
-      const btn = document.createElement('div');
-      btn.className = 'patient-btn' + (id === selectedPatient ? ' active' : '');
-      btn.textContent = 'Case ' + (id + 1);
-      btn.addEventListener('click', () => {
-        selectedPatient = id;
-        [document.getElementById('patientSelector'), document.getElementById('patientSelectorResearcher')].forEach(c => {
-          Array.from(c.children).forEach(b => {
-            b.classList.toggle('active', b.textContent === 'Case ' + (id + 1));
-          });
-        });
-        renderClinicianView();
-        renderResearcherView();
+const startupMessageTimer = setInterval(() => {
+  if (startupProgress < 96) {
+    nextStartupMessage();
+    setStartupProgress(Math.min(startupProgress + 7, 96));
+  }
+}, 900);
+
+function checkBackend() {
+  return fetch(BACKEND_HEALTH_URL, {
+    method: 'GET',
+    mode: 'no-cors',
+    cache: 'no-store'
+  }).then(() => {
+    backendReady = true;
+    setStartupStatus('Backend connection established ✓');
+    setStartupProgress(Math.max(startupProgress, 42));
+    return true;
+  }).catch(() => false);
+}
+
+function waitForBackend() {
+  return new Promise(resolve => {
+    let attempts = 0;
+
+    const tryConnection = () => {
+      attempts++;
+
+      checkBackend().then(ok => {
+        if (ok) {
+          resolve(true);
+          return;
+        }
+
+        if (attempts >= 20) {
+          setStartupStatus('Backend check timed out — continuing with dashboard...');
+          setStartupProgress(Math.max(startupProgress, 55));
+          resolve(false);
+          return;
+        }
+
+        setStartupStatus('Waiting for backend connection...');
+        setStartupProgress(Math.min(35 + attempts, 55));
+        setTimeout(tryConnection, 700);
       });
-      container.appendChild(btn);
-    });
+    };
+
+    tryConnection();
   });
 }
 
-function getPatient(id) {
-  return DATA.datasets[selectedDataset].patients.find(p => p.patient_id === id);
+function waitForResults() {
+  return fetch('results.json', { cache: 'no-store' })
+    .then(response => {
+      if (!response.ok) throw new Error('results.json could not be loaded');
+      return response.json();
+    })
+    .then(data => {
+      resultsReady = true;
+      setStartupStatus('Research and patient data loaded ✓');
+      setStartupProgress(Math.max(startupProgress, 82));
+      return data;
+    });
 }
 
-// ---------- Clinician View ----------
-function renderClinicianView() {
-  renderDatasetWarning();
-  const p = getPatient(selectedPatient);
-  const c = p.classical;
-  const isHighRisk = c.prediction === 'Positive/High-risk';
+async function startDashboard() {
+  try {
+    setStartupProgress(8);
+    nextStartupMessage();
 
-  const banner = document.getElementById('riskBanner');
-  banner.innerHTML = `
-    <div class="card risk-banner ${isHighRisk ? 'high' : 'low'}">
+    const backendPromise = waitForBackend();
+    const resultsPromise = waitForResults();
+
+    const results = await resultsPromise;
+    window.startupResultsData = results;
+
+    setStartupStatus('Dashboard data synchronized ✓');
+    setStartupProgress(90);
+
+    await backendPromise;
+
+    setStartupStatus('Validating dashboard modules...');
+    setStartupProgress(95);
+
+    await new Promise(resolve => setTimeout(resolve, 900));
+
+    setStartupStatus('System ready. Opening dashboard...');
+    setStartupProgress(100);
+
+    await new Promise(resolve => setTimeout(resolve, 900));
+
+    clearInterval(startupMessageTimer);
+
+    const startupScreen = document.getElementById('startup-screen');
+    if (startupScreen) startupScreen.classList.add('hide');
+
+  } catch (error) {
+    clearInterval(startupMessageTimer);
+    console.error('Startup error:', error);
+
+    setStartupStatus('Unable to load dashboard data. Check results.json.');
+    setStartupProgress(100);
+
+    const startupScreen = document.getElementById('startup-screen');
+    if (startupScreen) {
+      setTimeout(() => startupScreen.classList.add('hide'), 2200);
+    }
+  }
+}
+
+startDashboard();
+/* ==================== END STARTUP LOADER LOGIC ==================== */
+
+/* Theme Toggle Logic */
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  
+  document.getElementById('themeIcon').textContent = newTheme === 'dark' ? '🌙' : '☀️';
+  document.getElementById('themeText').textContent = newTheme === 'dark' ? 'Dark' : 'Light';
+}
+
+/* Dynamic Interactive Mouse-Following Particle Canvas */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+let particles = [];
+let mouse = { x: null, y: null, radius: 180 };
+
+function initCanvas() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+  particles = [];
+  const particleCount = Math.floor((width * height) / 18000);
+  
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.9,
+      vy: (Math.random() - 0.5) * 0.9,
+      size: Math.random() * 8 + 7
+    });
+  }
+}
+
+window.addEventListener('resize', initCanvas);
+window.addEventListener('mousemove', (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+window.addEventListener('mouseleave', () => {
+  mouse.x = null;
+  mouse.y = null;
+});
+
+function animateCanvas() {
+  ctx.clearRect(0, 0, width, height);
+  const theme = document.documentElement.getAttribute('data-theme');
+  const pColor = theme === 'dark' ? '59, 130, 246' : '37, 99, 235';
+  const lColor = theme === 'dark' ? '139, 92, 246' : '124, 58, 237';
+
+  for (let i = 0; i < particles.length; i++) {
+    let p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if (p.x < 0 || p.x > width) p.vx *= -1;
+    if (p.y < 0 || p.y > height) p.vy *= -1;
+
+    // React to mouse cursor movement
+    if (mouse.x !== null) {
+      let dx = mouse.x - p.x;
+      let dy = mouse.y - p.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < mouse.radius) {
+        let angle = Math.atan2(dy, dx);
+        let force = (mouse.radius - dist) / mouse.radius;
+        p.x -= Math.cos(angle) * force * 2;
+        p.y -= Math.sin(angle) * force * 2;
+      }
+    }
+
+    // Draw particle node
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${pColor}, 0.5)`;
+    ctx.fill();
+
+    // Connect close particle nodes
+    for (let j = i + 1; j < particles.length; j++) {
+      let p2 = particles[j];
+      let dx = p.x - p2.x;
+      let dy = p.y - p2.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 110) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = `rgba(${lColor}, ${0.15 * (1 - dist / 110)})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateCanvas);
+}
+
+initCanvas();
+animateCanvas();
+
+/* UI & Dashboard Logic */
+let DATA = null;
+let currentRole = 'doctor';
+let currentResearcherTab = 'heart'; 
+let currentPatientId = 0;
+
+const dashboardDataPromise = window.startupResultsData
+  ? Promise.resolve(window.startupResultsData)
+  : fetch('results.json', { cache: 'no-store' }).then(r => {
+      if (!r.ok) throw new Error('Could not load results.json');
+      return r.json();
+    });
+
+dashboardDataPromise
+  .then(data => {
+    DATA = data;
+    initDoctorPatientSelector();
+    renderView();
+  })
+  .catch(() => {
+    document.querySelector('.container').innerHTML =
+      '<div class="card"><h2>⚠️ Error</h2><p>Could not load <code>results.json</code>. Make sure your local server is running.</p></div>';
+  });
+
+function setRole(role) {
+  currentRole = role;
+  document.getElementById('btnDoctor').classList.toggle('active', role === 'doctor');
+  document.getElementById('btnResearcher').classList.toggle('active', role === 'researcher');
+  document.getElementById('doctorView').classList.toggle('active', role === 'doctor');
+  document.getElementById('researcherView').classList.toggle('active', role === 'researcher');
+  renderView();
+}
+
+function setResearcherTab(tab, element) {
+  currentResearcherTab = tab;
+  currentPatientId = 0;
+  document.querySelectorAll('.sub-nav .sub-btn').forEach(btn => btn.classList.remove('active'));
+  element.classList.add('active');
+  renderView();
+}
+
+const TAB_TO_KEY = {
+  heart: 'heart_disease',
+  wisconsin: 'wisconsin_breast_cancer',
+  leukemia: 'genomics',
+  diabetes: 'diabetes'
+};
+
+function resolveDatasetKey(tab) {
+  if (!DATA || !DATA.datasets) return null;
+  const key = TAB_TO_KEY[tab];
+  return DATA.datasets[key] ? key : null;
+}
+
+function initDoctorPatientSelector() {
+  if (!DATA || !DATA.datasets) return;
+  const dsKey = resolveDatasetKey('heart');
+  if (!dsKey) return;
+  const patients = DATA.datasets[dsKey].patients;
+  const container = document.getElementById('doctorPatientSelector');
+  container.innerHTML = patients.map(p => `
+    <div class="patient-btn ${p.patient_id === currentPatientId ? 'active' : ''}" 
+         onclick="selectPatient(${p.patient_id})">Case ${p.patient_id + 1}</div>
+  `).join('');
+}
+
+function initResearcherPatientSelector(dsKey) {
+  if (!DATA || !DATA.datasets || !DATA.datasets[dsKey]) return;
+  const patients = DATA.datasets[dsKey].patients;
+  const container = document.getElementById('researcherPatientSelector');
+  container.innerHTML = patients.map(p => `
+    <div class="patient-btn ${p.patient_id === currentPatientId ? 'active' : ''}" 
+         onclick="selectPatient(${p.patient_id})">Case ${p.patient_id + 1}</div>
+  `).join('');
+}
+
+function selectPatient(id) {
+  currentPatientId = id;
+  renderView();
+}
+
+function renderView() {
+  if (!DATA) return;
+
+  if (currentRole === 'doctor') {
+    renderDoctorView();
+  } else {
+    renderTabularResearcher();
+  }
+}
+
+function renderDoctorView() {
+  const dsKey = resolveDatasetKey('heart');
+  if (!dsKey) return;
+  initDoctorPatientSelector();
+  
+  const patient = DATA.datasets[dsKey].patients.find(p => p.patient_id === currentPatientId) || DATA.datasets[dsKey].patients[0];
+  const c = patient.classical;
+  const isHighRisk = c.prediction === 'Positive/High-risk' || c.prediction === 'Malignant';
+
+  document.getElementById('doctorRiskBanner').innerHTML = `
+    <div class="card" style="background:${isHighRisk ? 'var(--btn-bg)' : 'var(--btn-bg)'}; border-color:${isHighRisk ? 'var(--red)' : 'var(--green)'}; display:flex; justify-content:space-between; align-items:center;">
       <div>
-        <div class="risk-label">${isHighRisk ? '⚠️ HIGH RISK / POSITIVE' : '✅ LOW RISK / NEGATIVE'}</div>
-        <div style="color:var(--muted); font-size:0.85rem; margin-top:6px;">
-          Actual outcome on record: <b style="color:var(--text)">${p.actual_label}</b>
+        <div style="font-size:1.2rem; font-weight:800; color:${isHighRisk ? 'var(--red)' : 'var(--green)'}">
+          ${isHighRisk ? '⚠️ HIGH RISK / POSITIVE' : '✅ LOW RISK / NEGATIVE'}
         </div>
+        <div style="color:var(--muted); font-size:0.85rem; margin-top:4px;">Outcome: <b>${patient.actual_label}</b></div>
       </div>
-      <div class="risk-score">${c.risk_score_pct}%</div>
+      <div style="font-size:2.2rem; font-weight:800; font-family:'JetBrains Mono', monospace; color:${isHighRisk ? 'var(--red)' : 'var(--green)'}">${c.risk_score_pct}%</div>
     </div>
   `;
 
-  const list = document.getElementById('featureList');
-  list.innerHTML = c.top_features.map(f => {
+  document.getElementById('doctorFeatureList').innerHTML = c.top_features.map(f => {
     const highRisk = f.impact < 0;
     const strength = Math.min(Math.abs(f.impact) * 400, 100);
     return `
@@ -369,173 +1326,80 @@ function renderClinicianView() {
       </div>
     `;
   }).join('');
-
-  const q = p.quantum;
-  const agree = c.prediction === q.prediction;
-  document.getElementById('quantumNote').innerHTML = `
-    <p>The quantum hybrid model uses a compressed feature set (PCA-reduced) due to current qubit
-    hardware limits, so its per-feature explanation is less directly clinically readable — shown here
-    for research transparency, not primary clinical use.</p>
-    <p>Quantum model assessment: <b>${q.prediction}</b> (risk score: ${q.risk_score_pct}%)</p>
-    <p>${agree ? '✅ Agrees with classical model' : '⚠️ Disagrees with classical model — worth a closer look'}</p>
-  `;
 }
 
-// ---------- Researcher View ----------
-function renderResearcherView() {
-  const ds = DATA.datasets[selectedDataset];
+function renderTabularResearcher() {
+  const dsKey = resolveDatasetKey(currentResearcherTab);
+  const ds = dsKey && DATA.datasets[dsKey];
+  const missing = !ds || !ds.evaluation || !ds.patients || !ds.patients.length;
+  document.querySelectorAll('#tabularResearcherPanel .card').forEach(c => c.style.display = missing ? 'none' : '');
+  let note = document.getElementById('missingNote');
+  if (!note) {
+    note = document.createElement('div');
+    note.id = 'missingNote';
+    note.className = 'card';
+    document.getElementById('tabularResearcherPanel').prepend(note);
+  }
+  note.style.display = missing ? '' : 'none';
+  note.innerHTML = '<h2>No results yet</h2><p>Run <code>python export_results.py</code> to generate results for this dataset.</p>';
+  if (missing) return;
+
+  initResearcherPatientSelector(dsKey);
+
   const info = ds.dataset_info;
-  document.getElementById('pipelineInfo').innerHTML = `
-    <div><b>${info.name}</b></div>
-    <div>Train: <b>${info.n_train}</b> / Test: <b>${info.n_test}</b></div>
-    <div>Classical features: <b>${info.n_features_classical}</b></div>
-    <div>Quantum features (qubits): <b>${info.n_features_quantum}</b></div>
-    <div>PCA explained variance: <b>${(info.pca_explained_variance * 100).toFixed(1)}%</b></div>
+  document.getElementById('researcherPipelineInfo').innerHTML = `
+    <div>Dataset<b>${info.name || ds.display_name}</b></div>
+    <div>Train / Test Split<b>${info.n_train} / ${info.n_test}</b></div>
+    <div>Classical Features<b>${info.n_features_classical}</b></div>
+    <div>Quantum Qubits<b>${info.n_features_quantum}</b></div>
+    <div>Data Source<b>${ds.is_real_data ? 'Real clinical data' : '⚠️ Synthetic'}</b></div>
   `;
 
   const ev = ds.evaluation;
-  document.getElementById('evalTable').innerHTML = `
-    <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Training Time</th></tr>
-    <tr>
-      <td class="model-name classical">🔵 ${ev.classical.model}</td>
-      <td>${ev.classical.accuracy.toFixed(3)}</td>
-      <td>${ev.classical.precision.toFixed(3)}</td>
-      <td>${ev.classical.recall.toFixed(3)}</td>
-      <td>${ev.classical.f1.toFixed(3)}</td>
-      <td>${ev.classical.auc_roc.toFixed(3)}</td>
-      <td>${ev.classical.training_time_sec}s</td>
-    </tr>
-    <tr>
-      <td class="model-name quantum">🟣 ${ev.quantum.model}</td>
-      <td>${ev.quantum.accuracy.toFixed(3)}</td>
-      <td>${ev.quantum.precision.toFixed(3)}</td>
-      <td>${ev.quantum.recall.toFixed(3)}</td>
-      <td>${ev.quantum.f1.toFixed(3)}</td>
-      <td>${ev.quantum.auc_roc.toFixed(3)}</td>
-      <td>${ev.quantum.training_time_sec}s</td>
-    </tr>
+  document.getElementById('researcherEvalTable').innerHTML = `
+    <thead>
+      <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Training Time</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="model-name classical">🔵 ${ev.classical.model}</td>
+        <td>${ev.classical.accuracy.toFixed(3)}</td>
+        <td>${ev.classical.precision.toFixed(3)}</td>
+        <td>${ev.classical.recall.toFixed(3)}</td>
+        <td>${ev.classical.f1.toFixed(3)}</td>
+        <td>${Number.isFinite(ev.classical.auc_roc) ? ev.classical.auc_roc.toFixed(3) : '—'}</td>
+        <td>${ev.classical.training_time_sec}s</td>
+      </tr>
+      <tr>
+        <td class="model-name quantum">🟣 ${ev.quantum.model}</td>
+        <td>${ev.quantum.accuracy.toFixed(3)}</td>
+        <td>${ev.quantum.precision.toFixed(3)}</td>
+        <td>${ev.quantum.recall.toFixed(3)}</td>
+        <td>${ev.quantum.f1.toFixed(3)}</td>
+        <td>${Number.isFinite(ev.quantum.auc_roc) ? ev.quantum.auc_roc.toFixed(3) : '—'}</td>
+        <td>${ev.quantum.training_time_sec}s</td>
+      </tr>
+    </tbody>
   `;
 
-  document.getElementById('metricGrid').innerHTML = ['accuracy','precision','recall','f1'].map(m => `
-    <div class="metric-box">
-      <div class="label">Classical ${m}</div>
-      <div class="value classical">${ev.classical[m].toFixed(3)}</div>
-    </div>
-    <div class="metric-box">
-      <div class="label">Quantum ${m}</div>
-      <div class="value quantum">${ev.quantum[m].toFixed(3)}</div>
-    </div>
-  `).join('');
-
-  const p = getPatient(selectedPatient);
-  document.getElementById('classicalFeatures').innerHTML = p.classical.top_features.map(f =>
-    `<div style="padding:6px 0; font-size:0.85rem;">
-      <b>${f.feature}</b>: ${f.impact.toFixed(4)}
-      ${f.impact < 0 ? '<span style="color:var(--red)">→ higher risk</span>' : '<span style="color:var(--green)">→ lower risk</span>'}
+  const patient = ds.patients.find(p => p.patient_id === currentPatientId) || ds.patients[0];
+  document.getElementById('classicalFeatures').innerHTML = patient.classical.top_features.map(f =>
+    `<div style="padding:8px 0; font-size:0.85rem; border-bottom:1px solid var(--card-border);">
+      <b style="color:var(--text);">${f.feature}</b>: <span style="font-family:'JetBrains Mono';">${f.impact.toFixed(4)}</span>
+      ${f.impact < 0 ? '<span style="color:var(--red); font-weight:600;">→ higher risk</span>' : '<span style="color:var(--green); font-weight:600;">→ lower risk</span>'}
     </div>`
   ).join('');
-  document.getElementById('quantumFeatures').innerHTML = p.quantum.top_features.map(f =>
-    `<div style="padding:6px 0; font-size:0.85rem;">
-      <b>${f.feature}</b>: ${f.impact.toFixed(4)}
-      ${f.impact < 0 ? '<span style="color:var(--red)">→ higher risk</span>' : '<span style="color:var(--green)">→ lower risk</span>'}
+
+  document.getElementById('quantumFeatures').innerHTML = patient.quantum.top_features.map(f =>
+    `<div style="padding:8px 0; font-size:0.85rem; border-bottom:1px solid var(--card-border);">
+      <b style="color:var(--text);">${f.feature}</b>: <span style="font-family:'JetBrains Mono';">${f.impact.toFixed(4)}</span>
+      ${f.impact < 0 ? '<span style="color:var(--red); font-weight:600;">→ higher risk</span>' : '<span style="color:var(--green); font-weight:600;">→ lower risk</span>'}
     </div>`
   ).join('');
-  document.getElementById('groundTruth').innerHTML = `Ground truth for this case: <b>${p.actual_label}</b>`;
+
+  document.getElementById('groundTruthNote').innerHTML = `Ground Truth Label for this case: <b>${patient.actual_label}</b>`;
 }
 
-// ---------- Imaging View ----------
-function renderImagingView() {
-  const img = DATA.imaging;
-  const warnDiv = document.getElementById('imagingWarning');
-  if (!img) {
-    warnDiv.innerHTML = `<div class="disclaimer" style="border-left-color: var(--red);">
-      ⚠️ No imaging results found. Run <code>python3 export_image_results.py</code> to generate them.
-    </div>`;
-    document.getElementById('imagingPipelineInfo').innerHTML = '';
-    document.getElementById('imagingEvalTable').innerHTML = '';
-    document.getElementById('imagingMetricGrid').innerHTML = '';
-    document.getElementById('imagingCaseGrid').innerHTML = '';
-    return;
-  }
-
-  if (!img.is_real_data) {
-    warnDiv.innerHTML = `<div class="disclaimer" style="border-left-color: var(--red);">
-      ⚠️ This view is using <b>synthetic placeholder ultrasound images</b> shaped like the real
-      BreastMNIST dataset (real download requires internet access to Zenodo — see README).
-      Numbers and images here demonstrate the pipeline works correctly, not real-world accuracy.
-      ${img.engine ? `<br><span style="opacity:0.85;">Engine: ${img.engine}</span>` : ''}
-    </div>`;
-  } else {
-    warnDiv.innerHTML = `<div style="color:var(--muted); font-size:0.85rem; margin-bottom:12px;">
-      ${img.framing}${img.engine ? ` — Engine: ${img.engine}` : ''}
-    </div>`;
-  }
-  
-  const info = img.dataset_info;
-  document.getElementById('imagingPipelineInfo').innerHTML = `
-    <div><b>${info.name}</b></div>
-    <div>Train: <b>${info.n_train}</b> / Test: <b>${info.n_test}</b></div>
-    <div>Quantum features (qubits): <b>${info.n_qubits}</b></div>
-  `;
-
-  // Explicitly reference the current dataset from DATA.datasets
-  const currentDataset = DATA.datasets[selectedDataset] || Object.values(DATA.datasets)[0];
-  const ev = currentDataset ? currentDataset.evaluation : img.evaluation;
-
-  document.getElementById('imagingEvalTable').innerHTML = `
-    <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>AUC-ROC</th><th>Training Time</th></tr>
-    <tr>
-      <td class="model-name classical">🔵 ${ev.classical.model}</td>
-      <td>${ev.classical.accuracy.toFixed(3)}</td>
-      <td>${ev.classical.precision.toFixed(3)}</td>
-      <td>${ev.classical.recall.toFixed(3)}</td>
-      <td>${ev.classical.f1.toFixed(3)}</td>
-      <td>${Number.isFinite(ev.classical.auc_roc) ? ev.classical.auc_roc.toFixed(3) : '—'}</td>
-      <td>${ev.classical.training_time_sec}s</td>
-    </tr>
-    <tr>
-      <td class="model-name quantum">🟣 ${ev.quantum.model}</td>
-      <td>${ev.quantum.accuracy.toFixed(3)}</td>
-      <td>${ev.quantum.precision.toFixed(3)}</td>
-      <td>${ev.quantum.recall.toFixed(3)}</td>
-      <td>${ev.quantum.f1.toFixed(3)}</td>
-      <td>${Number.isFinite(ev.quantum.auc_roc) ? ev.quantum.auc_roc.toFixed(3) : '—'}</td>
-      <td>${ev.quantum.training_time_sec}s</td>
-    </tr>
-  `;
-
-  document.getElementById('imagingMetricGrid').innerHTML = ['accuracy','precision','recall','f1'].map(m => `
-    <div class="metric-box">
-      <div class="label">Classical ${m}</div>
-      <div class="value classical">${ev.classical[m].toFixed(3)}</div>
-    </div>
-    <div class="metric-box">
-      <div class="label">Quantum ${m}</div>
-      <div class="value quantum">${ev.quantum[m].toFixed(3)}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('imagingCaseGrid').innerHTML = img.cases.map(c => {
-    const cClass = c.classical.prediction === 'Malignant' ? 'malignant' : 'benign';
-    const qClass = c.quantum.prediction === 'Malignant' ? 'malignant' : 'benign';
-    const agree = c.classical.prediction === c.quantum.prediction;
-    return `
-      <div class="image-case">
-        <img src="${c.thumbnail}" alt="Ultrasound case ${c.case_id + 1}">
-        <div class="actual">Case ${c.case_id + 1} — actual: <b style="color:var(--text)">${c.actual_label}</b></div>
-        <div class="pred-row">
-          <span class="who">🔵 Classical</span>
-          <span class="val ${cClass}">${c.classical.prediction} (${c.classical.risk_score_pct}%)</span>
-        </div>
-        <div class="pred-row">
-          <span class="who">🟣 Quantum</span>
-          <span class="val ${qClass}">${c.quantum.prediction} (${c.quantum.risk_score_pct}%)</span>
-        </div>
-        <div class="agree">${agree ? '✅ Models agree' : '⚠️ Models disagree'}</div>
-      </div>
-    `;
-  }).join('');
-}
 </script>
 </body>
 </html>

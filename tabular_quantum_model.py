@@ -21,14 +21,18 @@ def qga_feature_selection(X_train_scaled, X_test_scaled, y_train, feature_names,
     selected_names = [feature_names[i] for i in selector.get_support(indices=True)]
     print(f"QGA-style selection picked: {selected_names}")
 
-    def rescale_to_pi(arr, ref_min, ref_max):
+    # Encoding range [0, pi/2]. The old [-pi, pi] range made angles wrap (-pi == +pi
+    # under RY) and pushed the ZZ kernel toward near-identity; a narrower range
+    # improved held-out AUC on heart and Pima in our tests.
+    ENC_SPAN = np.pi / 2
+
+    def rescale(arr, ref_min, ref_max):
         denom = np.where((ref_max - ref_min) == 0, 1e-8, ref_max - ref_min)
-        return -np.pi + (arr - ref_min) * (2 * np.pi) / denom
+        return np.clip((arr - ref_min) / denom, 0, 1) * ENC_SPAN
 
     train_min, train_max = X_train_sel.min(axis=0), X_train_sel.max(axis=0)
-    X_train_q = rescale_to_pi(X_train_sel, train_min, train_max)
-    X_test_q = rescale_to_pi(X_test_sel, train_min, train_max)
-    X_test_q = np.clip(X_test_q, -np.pi, np.pi)
+    X_train_q = rescale(X_train_sel, train_min, train_max)
+    X_test_q = rescale(X_test_sel, train_min, train_max)
     return X_train_q, X_test_q, selected_names
 
 
@@ -87,7 +91,7 @@ def qpso_search_vqc_hyperparams(X_train_q, y_train, n_qubits, n_particles=6, n_i
 
 
 class TabularQuantumEnsemble:
-    def __init__(self, n_qubits=6, vqc_layers=3, vqc_epochs=20, qsvm_ref_size=60):
+    def __init__(self, n_qubits=6, vqc_layers=3, vqc_epochs=20, qsvm_ref_size=150):
         self.n_qubits = n_qubits
         self.qsvm = QSVM(n_qubits)
         self.vqc_layers = vqc_layers
@@ -116,7 +120,7 @@ class TabularQuantumEnsemble:
         vqc_probs = vqc_predict_proba(self.vqc_model, X)
         return (qsvm_probs + vqc_probs) / 2.0
 
-    def predict(self, X, threshold=0.35):
+    def predict(self, X, threshold=0.5):
         probs = self.predict_proba(X)
         if probs.ndim == 2:
             probs = probs[:, 1]

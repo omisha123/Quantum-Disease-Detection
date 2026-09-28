@@ -9,7 +9,7 @@ from sklearn.metrics import (
 )
 
 
-def evaluate_model(name, model, X_test, y_test, fit_time, threshold=0.35):
+def evaluate_model(name, model, X_test, y_test, fit_time, threshold=0.5):
     preds = model.predict(X_test, threshold=threshold)
     probs = model.predict_proba(X_test)
 

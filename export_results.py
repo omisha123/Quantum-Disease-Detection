@@ -12,6 +12,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+from sklearn.datasets import load_breast_cancer
 
 from classical_model import ClassicalEnsemble
 from evaluate import evaluate_model
@@ -23,7 +24,7 @@ from tabular_quantum_model import (
 N_QUBITS = 6
 QUANTUM_SUBSET = 80
 VQC_EPOCHS = 20
-THRESHOLD = 0.35
+THRESHOLD = 0.5
 N_PATIENTS_TO_EXPLAIN = 5
 RESULTS_PATH = "results.json"
 
@@ -32,33 +33,36 @@ RESULTS_PATH = "results.json"
 # Data Loaders
 # ==========================================
 
-def load_diabetes_risk_data():
-    np.random.seed(42)
-    n = 300
-    glucose = np.random.normal(120, 30, n)
-    bmi = np.random.normal(30, 6, n)
-    age = np.random.normal(45, 12, n)
-    bp = np.random.normal(70, 10, n)
-    insulin = np.random.normal(80, 25, n)
-    pedigree = np.random.normal(0.5, 0.2, n)
-
-    logits = 0.03 * glucose + 0.05 * bmi + 0.02 * age - 5.0
-    prob = 1 / (1 + np.exp(-logits))
-    y = (prob > 0.5).astype(int)
-
-    X = np.column_stack([glucose, bmi, age, bp, insulin, pedigree])
-    feature_names = ["Glucose", "BMI", "Age", "BloodPressure", "Insulin", "DiabetesPedigree"]
-    return X, y, feature_names, False
+def load_diabetes_risk_data(csv_path="data/pima.csv"):
+    """Real Pima Indians Diabetes data (768 rows). Zero-as-missing columns are median-imputed."""
+    cols = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin",
+            "BMI", "DiabetesPedigree", "Age", "target"]
+    if not os.path.exists(csv_path):
+        os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+        url = ("https://raw.githubusercontent.com/jbrownlee/Datasets/master/"
+               "pima-indians-diabetes.data.csv")
+        pd.read_csv(url, header=None, names=cols).to_csv(csv_path, index=False)
+    df = pd.read_csv(csv_path)
+    for c in ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]:
+        df[c] = df[c].replace(0, np.nan)
+        df[c] = df[c].fillna(df[c].median())
+    feature_names = [c for c in df.columns if c != "target"]
+    return df[feature_names].to_numpy(), df["target"].to_numpy(), feature_names, True
 
 
-def load_genomics_data():
-    np.random.seed(101)
-    n_samples, n_genes = 120, 200
-    X = np.random.randn(n_samples, n_genes)
-    logits = X[:, :5].sum(axis=1) + np.random.randn(n_samples) * 0.5
-    y = (logits > 0).astype(int)
-    feature_names = [f"Gene_{i+1}" for i in range(n_genes)]
-    return X, y, feature_names, False
+def load_genomics_data(csv_path="data/leukemia_gene_expression.csv"):
+    """Real Golub leukemia data if dataset_leukemia.py has produced the CSV; otherwise
+    synthetic fallback, flagged is_real=False so the dashboard labels it honestly."""
+    if os.path.exists(csv_path):
+        df = pd.read_csv(csv_path)
+        feature_names = [c for c in df.columns if c != "target"]
+        return df[feature_names].to_numpy(dtype=float), df["target"].to_numpy(), feature_names, True
+    print("WARNING: data/leukemia_gene_expression.csv not found - using SYNTHETIC genomics data. "
+          "Run dataset_leukemia.py first for real data.")
+    rng = np.random.default_rng(101)
+    X = rng.standard_normal((120, 200))
+    y = ((X[:, :5].sum(axis=1) + rng.standard_normal(120) * 0.5) > 0).astype(int)
+    return X, y, [f"Gene_{i+1}" for i in range(200)], False
 
 
 def load_heart_disease_data(csv_path="data/heart.csv"):
@@ -79,6 +83,27 @@ def load_heart_disease_data(csv_path="data/heart.csv"):
     y = df["target"].to_numpy()
     feature_names = [c for c in df.columns if c != "target"]
     X = df[feature_names].to_numpy()
+    return X, y, feature_names, True
+
+
+def load_wisconsin_data():
+    """
+    Wisconsin Breast Cancer (sklearn built-in): 569 samples, 30 real-valued
+    features from digitized biopsy images (radius, texture, concavity, etc.).
+
+    NOTE (honesty flag, same as heart disease and the old breast-cancer path):
+    this is DIAGNOSTIC CONFIRMATION data - features come from an already-taken
+    biopsy, not a pre-diagnosis screening signal. Frame it in the pitch as
+    "accelerating and explaining diagnosis," not "early detection." Pima
+    Diabetes is the only genuinely pre-diagnosis dataset in this platform.
+    """
+    data = load_breast_cancer()
+    X, y = data.data, data.target
+    # sklearn's convention is 0=malignant, 1=benign; flip so 1=malignant,
+    # matching this project's "positive class = disease" convention used
+    # everywhere else (heart disease, diabetes).
+    y = 1 - y
+    feature_names = list(data.feature_names)
     return X, y, feature_names, True
 
 
@@ -122,7 +147,7 @@ def get_dataset_configs():
 
     configs["diabetes"] = {
         "display_name": "Pima Diabetes (Early Risk Screening)",
-        "framing": "Genuinely early/pre-diagnosis - glucose, BMI, age, family history risk factors",
+        "framing": "Early/pre-diagnosis risk screening - glucose, BMI, age, family history risk factors (real Pima data)",
         "loader": load_diabetes_risk_data
     }
 
@@ -130,6 +155,15 @@ def get_dataset_configs():
         "display_name": "Leukemia Gene Expression (Genomics)",
         "framing": "High-dimensional genomics data - illustrates classical ML's curse-of-dimensionality challenge",
         "loader": load_genomics_data
+    }
+
+    configs["wisconsin_breast_cancer"] = {
+        "display_name": "Wisconsin Breast Cancer (Diagnostic)",
+        "framing": "Diagnostic confirmation from digitized biopsy features (radius, "
+                   "texture, concavity, etc.) - post-biopsy classification, not "
+                   "early detection; included to show the hybrid pipeline benchmarked "
+                   "against a real, well-established, well-balanced clinical dataset",
+        "loader": load_wisconsin_data
     }
 
     return configs
@@ -278,8 +312,13 @@ if __name__ == "__main__":
     else:
         output = {"datasets": {}}
 
-    # Remove any leftover breast_cancer tabular entry (now MIAS-only, under "imaging")
+    # Remove any leftover entries from the old image-based pipeline - these
+    # keys will never be regenerated now that MIAS/Swin have been removed.
     output["datasets"].pop("breast_cancer", None)
+    output["datasets"].pop("mias_mammography", None)
+    # Stale numbers from the old synthetic/collapsed runs must not be reused
+    for stale in ("diabetes", "genomics", "heart_disease"):
+        output["datasets"].pop(stale, None)
 
     configs = get_dataset_configs()
     for key, cfg in configs.items():
